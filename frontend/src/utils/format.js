@@ -58,11 +58,18 @@ export function formatTimestamp(timestamp) {
  * 获取评分颜色
  */
 export function getScoreColor(score) {
+  if (typeof score === 'number') {
+    if (score >= 80) return '#ff6b35'
+    if (score >= 60) return '#ffd700'
+    if (score >= 40) return '#8b949e'
+    if (score >= 20) return '#58a6ff'
+    return '#e94560'
+  }
   const scoreStr = String(score).toUpperCase()
-  if (scoreStr.startsWith('S')) return '#ffd700'
-  if (scoreStr.startsWith('A')) return '#4ecca3'
-  if (scoreStr.startsWith('B')) return '#4a9eff'
-  if (scoreStr.startsWith('C')) return '#a0a0a0'
+  if (scoreStr.startsWith('S')) return '#ff6b35'
+  if (scoreStr.startsWith('A')) return '#ffd700'
+  if (scoreStr.startsWith('B')) return '#8b949e'
+  if (scoreStr.startsWith('C')) return '#58a6ff'
   return '#e94560'
 }
 

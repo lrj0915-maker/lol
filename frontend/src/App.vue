@@ -2,7 +2,11 @@
   <div class="app-container">
     <Sidebar />
     <main class="main-content">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <transition name="page" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </main>
     <StatusBar />
   </div>
@@ -101,5 +105,21 @@ onUnmounted(() => {
   padding-bottom: 44px;
   position: relative;
   z-index: 1;
+}
+
+/* 页面切换动画 */
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.25s ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>
