@@ -1,0 +1,43 @@
+{
+  "auto_accept": {
+    "enabled": true,
+    "delay_min": 1,
+    "delay_max": 3
+  },
+  "auto_select": {
+    "enabled": false,
+    "positions": {
+      "top": {
+        "ban": [],
+        "pick": []
+      },
+      "jungle": {
+        "ban": [],
+        "pick": []
+      },
+      "mid": {
+        "ban": [],
+        "pick": []
+      },
+      "adc": {
+        "ban": [],
+        "pick": []
+      },
+      "support": {
+        "ban": [],
+        "pick": []
+      }
+    },
+    "ban": [],
+    "pick": []
+  },
+  "chat": {
+    "auto_send": true,
+    "send_my_team": true,
+    "send_enemy": true,
+    "hotkey": "F1"
+  },
+  "ingame_chat": {
+    "enabled": true
+  }
+}

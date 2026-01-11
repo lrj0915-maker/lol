@@ -1,0 +1,61 @@
+:root {
+  /* 背景色 */
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-card: #1f2940;
+  --bg-hover: #253352;
+
+  /* 强调色 */
+  --accent-primary: #e94560;
+  --accent-secondary: #4ecca3;
+
+  /* 状态色 */
+  --color-win: #4ecca3;
+  --color-lose: #e94560;
+  --color-warning: #f39c12;
+
+  /* 文字色 */
+  --text-primary: #eaeaea;
+  --text-secondary: #a0a0a0;
+  --text-muted: #6c7a89;
+
+  /* 边框 */
+  --border-color: #2d3a4f;
+  --border-radius: 8px;
+
+  /* 六芒星颜色 */
+  --radar-me: #ffd700;
+  --radar-team1: #4a9eff;
+  --radar-team2: #4ecca3;
+  --radar-team3: #a855f7;
+  --radar-team4: #22d3ee;
+
+  /* 热力图渐变 */
+  --heatmap-low: #fff3e0;
+  --heatmap-mid: #ff7043;
+  --heatmap-high: #d32f2f;
+
+  /* 间距 */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* 字体 */
+  --font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+
+  /* 阴影 */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+
+  /* 过渡 */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+}
