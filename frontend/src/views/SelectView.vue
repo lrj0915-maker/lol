@@ -270,11 +270,8 @@ function onDrop(e, type, targetIdx) {
 }
 
 .page-header h2 {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   font-weight: 600;
-  background: linear-gradient(135deg, var(--text-primary), var(--accent-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 /* 开关卡片 */
@@ -286,17 +283,19 @@ function onDrop(e, type, targetIdx) {
   background: var(--bg-card);
   border-radius: 25px;
   cursor: pointer;
-  transition: all 0.3s;
-  border: 2px solid transparent;
+  transition: all var(--transition-normal);
+  border: 1px solid var(--border-color);
 }
 
 .toggle-card:hover {
   background: var(--bg-hover);
+  border-color: var(--border-color-light);
 }
 
 .toggle-card.on {
-  border-color: #4ecca3;
+  border-color: var(--color-win);
   background: rgba(78, 204, 163, 0.1);
+  box-shadow: var(--glow-win);
 }
 
 .toggle-label {

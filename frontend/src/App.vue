@@ -79,6 +79,18 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   background: var(--bg-primary);
+  position: relative;
+}
+
+.app-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  background: radial-gradient(ellipse at top, rgba(78, 204, 163, 0.05) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .main-content {
@@ -86,6 +98,8 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding-bottom: 40px; /* 为状态栏留空间 */
+  padding-bottom: 44px;
+  position: relative;
+  z-index: 1;
 }
 </style>

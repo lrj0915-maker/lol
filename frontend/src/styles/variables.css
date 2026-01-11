@@ -1,39 +1,57 @@
 :root {
-  /* 背景色 */
-  --bg-primary: #1a1a2e;
-  --bg-secondary: #16213e;
-  --bg-card: #1f2940;
-  --bg-hover: #253352;
+  /* 背景色 - 增加层次 */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --bg-card-hover: #292e36;
+  --bg-hover: #30363d;
+  --bg-elevated: #2d333b;
 
   /* 强调色 */
   --accent-primary: #e94560;
   --accent-secondary: #4ecca3;
+  --accent-tertiary: #58a6ff;
+
+  /* 渐变色 */
+  --gradient-win: linear-gradient(135deg, #4ecca3 0%, #2ecc71 100%);
+  --gradient-lose: linear-gradient(135deg, #e94560 0%, #c0392b 100%);
+  --gradient-gold: linear-gradient(135deg, #ffd700 0%, #f39c12 100%);
+  --gradient-primary: linear-gradient(135deg, #4ecca3 0%, #58a6ff 100%);
+  --gradient-danger: linear-gradient(135deg, #e94560 0%, #a855f7 100%);
+  --gradient-card: linear-gradient(145deg, rgba(33, 38, 45, 0.9) 0%, rgba(22, 27, 34, 0.9) 100%);
 
   /* 状态色 */
   --color-win: #4ecca3;
   --color-lose: #e94560;
   --color-warning: #f39c12;
+  --color-info: #58a6ff;
 
-  /* 文字色 */
-  --text-primary: #eaeaea;
-  --text-secondary: #a0a0a0;
-  --text-muted: #6c7a89;
+  /* 文字色 - 4级层次 */
+  --text-primary: #f0f6fc;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --text-disabled: #484f58;
 
   /* 边框 */
-  --border-color: #2d3a4f;
+  --border-color: #30363d;
+  --border-color-light: #3d444d;
   --border-radius: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-sm: 6px;
+
+  /* 发光效果 */
+  --glow-win: 0 0 20px rgba(78, 204, 163, 0.3);
+  --glow-lose: 0 0 20px rgba(233, 69, 96, 0.3);
+  --glow-gold: 0 0 20px rgba(255, 215, 0, 0.3);
+  --glow-primary: 0 0 20px rgba(78, 204, 163, 0.2);
+  --glow-card: 0 0 40px rgba(0, 0, 0, 0.5);
 
   /* 六芒星颜色 */
   --radar-me: #ffd700;
-  --radar-team1: #4a9eff;
+  --radar-team1: #58a6ff;
   --radar-team2: #4ecca3;
   --radar-team3: #a855f7;
   --radar-team4: #22d3ee;
-
-  /* 热力图渐变 */
-  --heatmap-low: #fff3e0;
-  --heatmap-mid: #ff7043;
-  --heatmap-high: #d32f2f;
 
   /* 间距 */
   --spacing-xs: 4px;
@@ -43,19 +61,24 @@
   --spacing-xl: 32px;
 
   /* 字体 */
-  --font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
-  --font-size-xs: 12px;
-  --font-size-sm: 14px;
-  --font-size-md: 16px;
-  --font-size-lg: 20px;
+  --font-family: 'Microsoft YaHei', 'PingFang SC', -apple-system, sans-serif;
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-md: 15px;
+  --font-size-lg: 18px;
   --font-size-xl: 24px;
+  --font-size-2xl: 32px;
 
   /* 阴影 */
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.6);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
   /* 过渡 */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s ease;
+  --transition-bounce: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }

@@ -1,89 +1,92 @@
 <template>
-  <div class="overview-bar" :class="{ win: isWin, lose: !isWin }">
-    <div class="result-badge">
-      <span class="result-icon">{{ isWin ? '🏆' : '❌' }}</span>
-      <span class="result-text">{{ isWin ? '胜利' : '失败' }}</span>
-    </div>
-    
-    <div class="game-info">
-      <span class="game-mode">{{ gameModeText }}</span>
-      <span class="game-length">{{ formatGameLength(match?.game_length || 0) }}</span>
-    </div>
-    
-    <div class="player-info" v-if="myPlayer">
-      <div class="champion-avatar">
-        <img v-if="championIcon" :src="championIcon" />
-        <span v-else>{{ myPlayer.champion_name?.charAt(0) || '?' }}</span>
+  <div class="overview-bar" :class="{ win: match.is_win, lose: !match.is_win }">
+    <div class="result-section">
+      <div class="result-badge">
+        <span class="result-icon">{{ match.is_win ? '🏆' : '❌' }}</span>
+        <span class="result-text">{{ match.is_win ? '胜利' : '失败' }}</span>
       </div>
-      <div class="kda">
-        <span class="kills">{{ myPlayer.kills }}</span>
-        <span class="separator">/</span>
-        <span class="deaths">{{ myPlayer.deaths }}</span>
-        <span class="separator">/</span>
-        <span class="assists">{{ myPlayer.assists }}</span>
+      <div class="game-info">
+        <span class="game-mode">{{ gameModeText }}</span>
+        <span class="game-time">{{ formatGameLength(match.game_length) }}</span>
       </div>
     </div>
     
-    <div class="score-info" v-if="myPlayer">
-      <span class="score" :style="{ color: getScoreColor(myPlayer.game_score) }">
-        {{ myPlayer.game_score || '-' }}
-      </span>
-      <span class="mvp-badge" v-if="isMVP">MVP</span>
+    <div class="score-section">
+      <div class="team-score our">
+        <span class="score-value">{{ ourKills }}</span>
+        <span class="score-label">击杀</span>
+      </div>
+      <div class="vs-divider">
+        <span class="vs-text">VS</span>
+      </div>
+      <div class="team-score enemy">
+        <span class="score-value">{{ enemyKills }}</span>
+        <span class="score-label">击杀</span>
+      </div>
     </div>
     
-    <!-- 成就徽章 -->
-    <div class="achievements" v-if="myPlayer">
-      <span class="achievement" v-if="myPlayer.penta_kills">🔥 五杀</span>
-      <span class="achievement" v-else-if="myPlayer.quadra_kills">🔥 四杀</span>
-      <span class="achievement" v-else-if="myPlayer.triple_kills">🔥 三杀</span>
-      <span class="achievement" v-if="myPlayer.first_blood">⚔️ 一血</span>
-      <span class="achievement" v-if="myPlayer.largest_killing_spree >= 5">🗡️ 连杀{{ myPlayer.largest_killing_spree }}</span>
+    <div class="stats-section">
+      <div class="stat-item">
+        <span class="stat-icon">⚔️</span>
+        <div class="stat-content">
+          <span class="stat-value">{{ myPlayer?.kills }}/{{ myPlayer?.deaths }}/{{ myPlayer?.assists }}</span>
+          <span class="stat-label">我的KDA</span>
+        </div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-icon">💰</span>
+        <div class="stat-content">
+          <span class="stat-value">{{ formatNumber(myPlayer?.gold_earned || 0) }}</span>
+          <span class="stat-label">经济</span>
+        </div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-icon">💥</span>
+        <div class="stat-content">
+          <span class="stat-value">{{ formatNumber(myPlayer?.total_damage || 0) }}</span>
+          <span class="stat-label">伤害</span>
+        </div>
+      </div>
+      <div class="stat-item highlight">
+        <span class="stat-icon">⭐</span>
+        <div class="stat-content">
+          <span class="stat-value score" :style="{ color: getScoreColor(myPlayer?.game_score) }">
+            {{ myPlayer?.game_score || '-' }}
+          </span>
+          <span class="stat-label">评分</span>
+        </div>
+      </div>
     </div>
     
-    <div class="lp-change" v-if="lpChange">
-      <span :class="lpChange > 0 ? 'positive' : 'negative'">
-        {{ lpChange > 0 ? '+' : '' }}{{ lpChange }} LP
-      </span>
+    <div class="timestamp-section">
+      <span class="timestamp">{{ formatTimestamp(match.timestamp) }}</span>
     </div>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import { formatGameLength, getScoreColor, gameModeNames } from '@/utils/format'
-import { getChampionIcon } from '@/utils/ddragon'
+import { formatGameLength, formatTimestamp, formatNumber, getScoreColor, gameModeNames } from '@/utils/format'
 
 const props = defineProps({
   match: Object
 })
 
-const isWin = computed(() => props.match?.win ?? props.match?.is_win ?? false)
+const gameModeText = computed(() => {
+  return gameModeNames[props.match?.game_mode] || props.match?.game_mode || '未知模式'
+})
 
 const myPlayer = computed(() => {
   return props.match?.my_team?.find(p => p.is_me)
 })
 
-const championIcon = computed(() => getChampionIcon(myPlayer.value?.champion_id))
-
-const gameModeText = computed(() => {
-  const mode = props.match?.game_mode
-  // 如果后端已经转换了，直接用
-  if (mode && !mode.includes('_') && mode !== 'CLASSIC') {
-    return mode
-  }
-  return gameModeNames[mode] || mode || '对局'
+const ourKills = computed(() => {
+  return props.match?.my_team?.reduce((sum, p) => sum + (p.kills || 0), 0) || 0
 })
 
-const isMVP = computed(() => {
-  if (!props.match?.my_team || !myPlayer.value) return false
-  const myKDA = (myPlayer.value.kills + myPlayer.value.assists) / Math.max(1, myPlayer.value.deaths)
-  return props.match.my_team.every(p => {
-    const pKDA = (p.kills + p.assists) / Math.max(1, p.deaths)
-    return p.is_me || myKDA >= pKDA
-  })
+const enemyKills = computed(() => {
+  return props.match?.enemy_team?.reduce((sum, p) => sum + (p.kills || 0), 0) || 0
 })
-
-const lpChange = computed(() => null)
 </script>
 
 <style scoped>
@@ -93,16 +96,36 @@ const lpChange = computed(() => null)
   gap: var(--spacing-lg);
   padding: var(--spacing-md) var(--spacing-lg);
   background: var(--bg-card);
-  border-radius: var(--border-radius);
-  border-left: 4px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
 }
 
-.overview-bar.win {
-  border-left-color: var(--color-win);
+.overview-bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
 }
 
-.overview-bar.lose {
-  border-left-color: var(--color-lose);
+.overview-bar.win::before {
+  background: var(--gradient-win);
+  box-shadow: 0 0 20px var(--color-win);
+}
+
+.overview-bar.lose::before {
+  background: var(--gradient-lose);
+  box-shadow: 0 0 20px var(--color-lose);
+}
+
+.result-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 100px;
 }
 
 .result-badge {
@@ -112,130 +135,116 @@ const lpChange = computed(() => null)
 }
 
 .result-icon {
-  font-size: 24px;
+  font-size: var(--font-size-xl);
 }
 
 .result-text {
   font-size: var(--font-size-lg);
-  font-weight: 600;
+  font-weight: 700;
 }
 
-.win .result-text {
-  color: var(--color-win);
-}
-
-.lose .result-text {
-  color: var(--color-lose);
-}
+.overview-bar.win .result-text { color: var(--color-win); }
+.overview-bar.lose .result-text { color: var(--color-lose); }
 
 .game-info {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.game-mode {
-  color: var(--text-secondary);
+  gap: var(--spacing-sm);
   font-size: var(--font-size-xs);
+  color: var(--text-muted);
 }
 
-.game-length {
-  font-size: var(--font-size-md);
-  font-weight: 500;
-}
-
-.player-info {
+.score-section {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  padding: 0 var(--spacing-lg);
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
 }
 
-.champion-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--bg-secondary);
+.team-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 50px;
+}
+
+.team-score .score-value {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+}
+
+.team-score.our .score-value { color: var(--color-win); }
+.team-score.enemy .score-value { color: var(--color-lose); }
+
+.team-score .score-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.vs-divider {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  overflow: hidden;
 }
 
-.champion-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.vs-text {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--text-disabled);
+  padding: 4px 8px;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-sm);
 }
 
-.kda {
-  font-size: var(--font-size-xl);
-  font-weight: 600;
+.stats-section {
+  display: flex;
+  gap: var(--spacing-lg);
+  flex: 1;
 }
 
-.kills {
-  color: var(--color-win);
-}
-
-.deaths {
-  color: var(--color-lose);
-}
-
-.assists {
-  color: var(--text-secondary);
-}
-
-.separator {
-  color: var(--text-muted);
-  margin: 0 2px;
-}
-
-.score-info {
+.stat-item {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
 }
 
-.score {
-  font-size: var(--font-size-xl);
-  font-weight: 700;
+.stat-icon {
+  font-size: var(--font-size-md);
 }
 
-.mvp-badge {
-  background: linear-gradient(135deg, #ffd700, #ff8c00);
-  color: #000;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-}
-
-.achievements {
+.stat-content {
   display: flex;
-  gap: var(--spacing-sm);
-  margin-left: var(--spacing-md);
+  flex-direction: column;
 }
 
-.achievement {
-  background: var(--bg-secondary);
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: var(--font-size-xs);
+.stat-value {
+  font-size: var(--font-size-md);
+  font-weight: 600;
   color: var(--text-primary);
 }
 
-.lp-change {
+.stat-value.score {
+  font-size: var(--font-size-lg);
+}
+
+.stat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.stat-item.highlight {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+}
+
+.timestamp-section {
   margin-left: auto;
-  font-size: var(--font-size-md);
-  font-weight: 600;
 }
 
-.positive {
-  color: var(--color-win);
-}
-
-.negative {
-  color: var(--color-lose);
+.timestamp {
+  font-size: var(--font-size-xs);
+  color: var(--text-disabled);
 }
 </style>

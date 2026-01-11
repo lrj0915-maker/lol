@@ -8,14 +8,25 @@
     
     <!-- 空状态 -->
     <div class="empty-state" v-else-if="!matchStore.currentMatch || !matchStore.currentMatch.game_id">
-      <div class="empty-icon">📊</div>
-      <h3>暂无战绩数据</h3>
-      <p>完成一局游戏后，这里会显示详细的战绩分析</p>
-      <div class="tips">
-        <p>💡 确保已连接到 LOL 客户端</p>
-        <p>💡 游戏结束后自动获取数据</p>
+      <div class="empty-content">
+        <div class="empty-icon">📊</div>
+        <h3>暂无战绩数据</h3>
+        <p>完成一局游戏后，这里会显示详细的战绩分析</p>
+        <div class="tips">
+          <div class="tip-item">
+            <span class="tip-icon">💡</span>
+            <span>确保已连接到 LOL 客户端</span>
+          </div>
+          <div class="tip-item">
+            <span class="tip-icon">💡</span>
+            <span>游戏结束后自动获取数据</span>
+          </div>
+        </div>
+        <button class="test-btn" @click="loadTestData">
+          <span>🧪</span>
+          加载测试数据
+        </button>
       </div>
-      <button class="test-btn" @click="loadTestData">🧪 加载测试数据</button>
     </div>
     
     <!-- 有数据时显示 -->
@@ -41,7 +52,10 @@
             />
           </div>
           <div class="no-selection" v-else>
-            <p>点击左侧小六芒星选择玩家</p>
+            <div class="no-selection-content">
+              <span class="no-selection-icon">👆</span>
+              <p>点击左侧六芒星选择玩家</p>
+            </div>
           </div>
         </div>
       </div>
@@ -67,10 +81,8 @@ const activePlayer = ref('')
 const myTeam = computed(() => matchStore.currentMatch?.my_team || [])
 const radarData = computed(() => matchStore.currentMatch?.radar_data || [])
 
-// 当前选中的玩家
 const selectedPlayer = computed(() => {
   if (!activePlayer.value) return null
-  // 先按 summoner_name 找，找不到再按 champion_name 找
   return myTeam.value.find(p => p.summoner_name === activePlayer.value) ||
          myTeam.value.find(p => p.champion_name === activePlayer.value)
 })
@@ -89,7 +101,6 @@ const teamTotals = computed(() => {
 
 function loadTestData() {
   matchStore.loadMockData()
-  // 默认选中自己
   const me = myTeam.value.find(p => p.is_me)
   if (me) {
     activePlayer.value = me.summoner_name || me.champion_name
@@ -98,7 +109,6 @@ function loadTestData() {
 
 onMounted(async () => {
   await matchStore.fetchCurrentMatch()
-  // 默认选中自己
   const me = myTeam.value.find(p => p.is_me)
   if (me) {
     activePlayer.value = me.summoner_name || me.champion_name
@@ -111,8 +121,8 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: var(--spacing-sm);
-  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  gap: var(--spacing-md);
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -129,8 +139,8 @@ onMounted(async () => {
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border: 3px solid var(--border-color);
   border-top-color: var(--accent-secondary);
   border-radius: 50%;
@@ -145,61 +155,86 @@ onMounted(async () => {
 .empty-state {
   flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  color: var(--text-secondary);
+  padding: var(--spacing-xl);
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  max-width: 400px;
 }
 
 .empty-icon {
-  font-size: 64px;
+  font-size: 72px;
   margin-bottom: var(--spacing-md);
   opacity: 0.5;
 }
 
-.empty-state h3 {
+.empty-content h3 {
   font-size: var(--font-size-lg);
   color: var(--text-primary);
   margin-bottom: var(--spacing-sm);
 }
 
-.empty-state p {
+.empty-content > p {
+  color: var(--text-secondary);
   margin-bottom: var(--spacing-lg);
 }
 
 .tips {
-  background: var(--bg-card);
-  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
   border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-lg);
 }
 
-.tips p {
-  margin: var(--spacing-xs) 0;
+.tip-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.tip-icon {
+  font-size: var(--font-size-md);
 }
 
 .test-btn {
-  margin-top: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-lg);
-  background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+  background: var(--gradient-primary);
   border: none;
   border-radius: var(--border-radius);
-  color: var(--text-primary);
-  font-size: var(--font-size-base);
+  color: var(--bg-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .test-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(200, 155, 60, 0.3);
+  box-shadow: var(--glow-primary), var(--shadow-md);
 }
 
-/* 主内容 - 固定高度 */
+/* 主内容 */
 .main-content {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-md);
   height: 380px;
   min-height: 380px;
   max-height: 380px;
@@ -210,13 +245,14 @@ onMounted(async () => {
   flex: 1;
   min-width: 420px;
   background: var(--bg-card);
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
   overflow: hidden;
 }
 
 .right-panel {
-  flex: 0 0 320px;
-  width: 320px;
+  flex: 0 0 340px;
+  width: 340px;
   display: flex;
   flex-direction: column;
 }
@@ -232,22 +268,37 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   background: var(--bg-card);
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.no-selection-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
   color: var(--text-muted);
 }
 
-/* Tab区域 - 自适应剩余空间 */
+.no-selection-icon {
+  font-size: 32px;
+  opacity: 0.5;
+}
+
+/* Tab区域 */
 .detail-section {
   flex: 1;
   min-height: 200px;
   overflow: hidden;
 }
 
-/* 响应式 - 小屏幕时上下布局 */
+/* 响应式 */
 @media (max-width: 900px) {
   .main-content {
     flex-direction: column;
+    height: auto;
     min-height: auto;
+    max-height: none;
   }
   
   .left-panel {
@@ -258,6 +309,8 @@ onMounted(async () => {
   }
   
   .right-panel {
+    flex: none;
+    width: 100%;
     min-height: 200px;
   }
 }

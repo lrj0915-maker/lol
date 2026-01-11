@@ -108,8 +108,13 @@ class InGameChatService:
             print(f"[InGameChat] 生成嘲讽: {len(lines)} 行")
             
             # 逐行发送
-            for line in lines:
+            for i, line in enumerate(lines):
                 full_message = f"/all {line}"
+                
+                # 第一条消息前多等2秒，确保聊天框准备好
+                if i == 0:
+                    time.sleep(2)
+                
                 success = self._send_with_ahk(full_message)
                 if not success:
                     print(f"[InGameChat] 发送失败: {line}")

@@ -48,25 +48,30 @@ const currentTabComponent = computed(() => {
   flex-direction: column;
   height: 100%;
   background: var(--bg-card);
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
   overflow: hidden;
 }
 
 .tabs-header {
   display: flex;
-  gap: 2px;
+  gap: 4px;
   padding: var(--spacing-sm);
   background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
   overflow-x: auto;
 }
 
 .tab-btn {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 8px 16px;
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   border-radius: var(--border-radius);
   font-size: var(--font-size-sm);
+  font-weight: 500;
   white-space: nowrap;
+  transition: all var(--transition-fast);
+  position: relative;
 }
 
 .tab-btn:hover {
@@ -75,8 +80,9 @@ const currentTabComponent = computed(() => {
 }
 
 .tab-btn.active {
-  background: var(--accent-secondary);
+  background: var(--gradient-primary);
   color: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .tabs-content {

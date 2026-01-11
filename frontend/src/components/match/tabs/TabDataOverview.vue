@@ -125,41 +125,58 @@ function formatK(num) {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
 }
 
 .data-table th,
 .data-table td {
-  padding: 8px 10px;
+  padding: 10px 12px;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
 }
 
 .data-table th {
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-weight: 500;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
+  background: var(--bg-secondary);
+  transition: all var(--transition-fast);
 }
 
 .data-table th:hover {
   color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.data-table tbody tr {
+  transition: background var(--transition-fast);
+}
+
+.data-table tbody tr:hover {
+  background: var(--bg-secondary);
 }
 
 .data-table tr.is-me {
-  background: rgba(255, 215, 0, 0.1);
+  background: rgba(255, 215, 0, 0.08);
+}
+
+.data-table tr.is-me:hover {
+  background: rgba(255, 215, 0, 0.12);
 }
 
 .player-cell {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--spacing-xs);
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .me-badge {
-  color: #ffd700;
+  color: var(--radar-me);
+  text-shadow: 0 0 8px var(--radar-me);
 }
 
 .max {
@@ -168,7 +185,7 @@ function formatK(num) {
 }
 
 .max-mark {
-  color: #ffd700;
+  color: var(--radar-me);
   font-size: 10px;
   margin-left: 2px;
 }
@@ -176,10 +193,11 @@ function formatK(num) {
 .team-summary {
   display: flex;
   gap: var(--spacing-lg);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-md);
   background: var(--bg-secondary);
   border-radius: var(--border-radius);
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
+  border: 1px solid var(--border-color);
 }
 </style>

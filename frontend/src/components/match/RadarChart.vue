@@ -244,32 +244,39 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 10px;
-  gap: 8px;
+  padding: var(--spacing-md);
+  gap: var(--spacing-sm);
 }
 
 .mode-toggle {
   display: flex;
-  gap: 6px;
+  gap: var(--spacing-xs);
+  background: var(--bg-secondary);
+  padding: 4px;
+  border-radius: var(--border-radius);
+  width: fit-content;
 }
 
 .toggle-btn {
-  padding: 5px 14px;
-  font-size: 12px;
-  background: rgba(40,50,65,0.8);
-  color: var(--text-secondary);
-  border: 1px solid rgba(80,100,130,0.3);
-  border-radius: 5px;
+  padding: 6px 16px;
+  font-size: var(--font-size-xs);
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-fast);
+  font-weight: 500;
 }
 
-.toggle-btn:hover { background: rgba(55,70,90,0.9); }
+.toggle-btn:hover {
+  color: var(--text-secondary);
+}
 
 .toggle-btn.active {
-  background: rgba(200,155,60,0.25);
-  color: var(--accent-secondary);
-  border-color: var(--accent-secondary);
+  background: var(--gradient-primary);
+  color: var(--bg-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .main-chart-area {
@@ -286,38 +293,45 @@ onUnmounted(() => {
 
 .merge-legend {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: rgba(12,16,24,0.9);
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid rgba(80,100,130,0.3);
+  background: rgba(13, 17, 23, 0.95);
+  backdrop-filter: blur(8px);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 6px;
-  border-radius: 4px;
+  gap: var(--spacing-xs);
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all var(--transition-fast);
 }
 
-.legend-item:hover { background: rgba(60,80,110,0.4); }
-.legend-item.active { background: rgba(200,155,60,0.2); }
+.legend-item:hover {
+  background: var(--bg-hover);
+}
+
+.legend-item.active {
+  background: rgba(78, 204, 163, 0.15);
+}
 
 .legend-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
 }
 
 .legend-name {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--text-secondary);
 }
 
@@ -326,54 +340,61 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
-.legend-star { color: #ffd700; font-size: 11px; }
+.legend-star {
+  color: var(--radar-me);
+  font-size: 10px;
+  text-shadow: 0 0 8px var(--radar-me);
+}
 
 .mini-selector {
   display: flex;
   justify-content: center;
-  gap: 6px;
-  padding: 6px;
-  background: rgba(0,0,0,0.25);
-  border-radius: 8px;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
   flex-shrink: 0;
 }
 
 .mini-card {
-  width: 64px;
+  width: 68px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 4px;
-  background: rgba(25,32,45,0.8);
-  border-radius: 6px;
+  padding: var(--spacing-xs);
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
   border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
 }
 
 .mini-card:hover {
-  background: rgba(40,52,70,0.9);
-  transform: translateY(-2px);
+  background: var(--bg-card-hover);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
 .mini-card.active {
   border-color: var(--accent-secondary);
-  background: rgba(50,65,90,0.95);
-  box-shadow: 0 0 12px rgba(200,155,60,0.25);
+  background: var(--bg-elevated);
+  box-shadow: var(--glow-primary);
 }
 
-.mini-card.me { border-left: 3px solid #ffd700; }
+.mini-card.me {
+  border-left: 3px solid var(--radar-me);
+}
 
 .mini-chart {
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
 }
 
 .mini-label {
   display: flex;
   align-items: center;
   gap: 3px;
-  margin-top: 3px;
+  margin-top: 4px;
 }
 
 .mini-color {
@@ -383,9 +404,9 @@ onUnmounted(() => {
 }
 
 .mini-name {
-  font-size: 11px;
-  color: var(--text-secondary);
-  max-width: 42px;
+  font-size: 10px;
+  color: var(--text-muted);
+  max-width: 44px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -396,5 +417,9 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
-.mini-star { color: #ffd700; font-size: 10px; }
+.mini-star {
+  color: var(--radar-me);
+  font-size: 10px;
+  text-shadow: 0 0 6px var(--radar-me);
+}
 </style>
