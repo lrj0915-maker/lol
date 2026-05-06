@@ -141,7 +141,8 @@ class AugmentsDataService:
         if not os.path.exists(champions_js):
             _log.warning("英雄列表文件不存在: %s", champions_js)
             return []
-        source = open(champions_js, 'r', encoding='utf-8', errors='ignore').read()
+        with open(champions_js, 'r', encoding='utf-8', errors='ignore') as f:
+            source = f.read()
         pattern = re.compile(r"\{\s*id:\s*(\d+)\s*,\s*key:\s*'([^']+)'", re.MULTILINE)
         champions = []
         seen_ids = set()

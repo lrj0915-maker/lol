@@ -33,12 +33,17 @@ const defaultPreferences = {
 class UserPreferences {
   constructor() {
     this.preferences = ref(this.load())
-    
-    // 监听变化并自动保存
+    this._saveTimer = null
+
+    // 监听变化并自动保存（防抖 300ms）
     watch(
       () => this.preferences.value,
       (newPrefs) => {
-        this.save(newPrefs)
+        if (this._saveTimer) clearTimeout(this._saveTimer)
+        this._saveTimer = setTimeout(() => {
+          this._saveTimer = null
+          this.save(newPrefs)
+        }, 300)
       },
       { deep: true }
     )

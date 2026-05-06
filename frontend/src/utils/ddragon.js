@@ -14,6 +14,23 @@ champions.forEach(c => {
   championKeyMap[c.id] = c.key
 })
 
+// 召唤师技能 ID -> Data Dragon 名称映射
+const SPELL_MAP = {
+  1: 'SummonerBoost',       // 净化
+  3: 'SummonerExhaust',     // 虚弱
+  4: 'SummonerFlash',       // 闪现
+  6: 'SummonerHaste',       // 幽灵疾步
+  7: 'SummonerHeal',        // 治疗
+  11: 'SummonerSmite',      // 惩戒
+  12: 'SummonerTeleport',   // 传送
+  13: 'SummonerMana',       // 清晰术
+  14: 'SummonerDot',        // 点燃
+  21: 'SummonerBarrier',    // 屏障
+  30: 'SummonerPoroRecall', // 雪球召回
+  31: 'SummonerPoroThrow',  // 雪球投掷
+  32: 'SummonerSnowball',   // 雪球（大乱斗）
+}
+
 /**
  * 获取英雄头像 URL
  */
@@ -44,22 +61,7 @@ export function getItemIcon(itemId) {
  * 获取召唤师技能图标 URL
  */
 export function getSpellIcon(spellId) {
-  const spellMap = {
-    1: 'SummonerBoost',       // 净化
-    3: 'SummonerExhaust',     // 虚弱
-    4: 'SummonerFlash',       // 闪现
-    6: 'SummonerHaste',       // 幽灵疾步
-    7: 'SummonerHeal',        // 治疗
-    11: 'SummonerSmite',      // 惩戒
-    12: 'SummonerTeleport',   // 传送
-    13: 'SummonerMana',       // 清晰术
-    14: 'SummonerDot',        // 点燃
-    21: 'SummonerBarrier',    // 屏障
-    30: 'SummonerPoroRecall', // 雪球召回
-    31: 'SummonerPoroThrow',  // 雪球投掷
-    32: 'SummonerSnowball',   // 雪球（大乱斗）
-  }
-  const name = spellMap[spellId]
+  const name = SPELL_MAP[spellId]
   if (!name) return null
   return `${DDRAGON_BASE}/img/spell/${name}.png`
 }

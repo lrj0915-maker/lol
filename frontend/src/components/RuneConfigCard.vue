@@ -7,7 +7,7 @@
       <div class="header-info">
         <span class="tree-label">{{ primaryTreeName }} + {{ secondaryTreeName }}</span>
         <!-- 登场率 -->
-        <span class="pick-rate">{{ formatPercent(config.pick_rate, 2) }} 登场</span>
+        <span class="pick-rate">{{ formatRatePercent(config.pick_rate, 2) }} 登场</span>
         <PopularityBadge :games="config.play" :total-games="totalGames" />
       </div>
 
@@ -32,7 +32,7 @@
       <div class="body-stats">
         <span class="stat-item">
           <span class="stat-label">胜率</span>
-          <span class="stat-val" :class="wrClass">{{ formatWinRate(config) }}</span>
+          <span class="stat-val" :class="winRateClass(config.play ? config.win / config.play : 0)">{{ formatWinRate(config) }}</span>
         </span>
         <span class="stat-divider">|</span>
         <span class="stat-item">
@@ -106,7 +106,7 @@ import { computed, defineAsyncComponent, ref } from 'vue'
 import WinRateBar from './WinRateBar.vue'
 import PopularityBadge from './PopularityBadge.vue'
 import { getTreeById, getRuneById, getRuneIconUrl, getStatShardById, getStatShardIconUrl } from '@/data/runes'
-import { formatWinRate as calcWinRate, winRateClass, formatRatePercent } from '@/utils/runesViewHelpers'
+import { formatWinRate, winRateClass, formatRatePercent } from '@/utils/runesViewHelpers'
 import { useFavorites } from '@/composables/useFavorites'
 import bridge from '@/utils/bridge'
 
@@ -140,8 +140,6 @@ function getRuneLabel(id) { return getRuneById(id)?.name || '未知' }
 function getShardLabel(id) { return getStatShardById(id)?.name || '未知' }
 function getShardIconUrl(id) { return getStatShardIconUrl(id) }
 function imgErr(e) { e.target.style.opacity = '0.3' }
-function formatWinRate(cfg) { return calcWinRate(cfg) }
-function wrClass(val) { return winRateClass(val !== undefined ? (val > 1 ? val : val * 100) : 0) }
 
 function toggleFavorite() {
   if (isFavorited.value) removeFavorite(`${props.championId}_${props.position}_${props.rank}`)

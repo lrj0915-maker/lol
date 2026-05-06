@@ -238,6 +238,7 @@ import {
   sortRuneConfigs,
   winRateClass,
 } from '@/utils/runesViewHelpers'
+import { POSITION_NAMES, formatRelativeTime } from '@/utils/format'
 import { getTreeById, preloadRuneIcons } from '@/data/runes'
 import bridge from '@/utils/bridge'
 import { useAppStore } from '@/stores/app'
@@ -252,7 +253,7 @@ import SkillOrderCard from '@/components/SkillOrderCard.vue'
 import PageStatusBanner from '@/components/common/PageStatusBanner.vue'
 import PageLoadingState from '@/components/common/PageLoadingState.vue'
 
-const POS = { TOP: '上单', JUNGLE: '打野', MID: '中单', ADC: '下路', SUPPORT: '辅助' }
+const POS = POSITION_NAMES
 const ALL_POSITIONS = ['TOP', 'JUNGLE', 'MID', 'ADC', 'SUPPORT']
 const appStore = useAppStore()
 const userPrefs = useUserPreferences()
@@ -387,17 +388,6 @@ const showStatusBanner = computed(() => Boolean(runesStatus.value?.exists && (ru
 const revealRuneCards = computed(() => visualLoadStep.value >= 2)
 const revealChampionStats = computed(() => visualLoadStep.value >= 3)
 const revealItemBlocks = computed(() => visualLoadStep.value >= 4)
-const statusBannerTone = computed(() => {
-  if (runesStatus.value?.last_update_error) return 'error'
-  if (runesStatus.value?.is_stale) return 'warning'
-  return 'info'
-})
-const statusBannerText = computed(() => {
-  if (runesStatus.value?.is_updating) return '符文数据正在更新，请稍候'
-  if (runesStatus.value?.last_update_error) return `更新失败：${runesStatus.value.last_update_error}`
-  if (runesStatus.value?.is_stale) return `符文数据已过期 ${runesStatus.value.days_old} 天，建议刷新`
-  return ''
-})
 const overviewPos = computed(() => overview.value.position_stats || {})
 const overviewCounters = computed(() => overview.value.counters || [])
 const cachedMeta = computed(() => runesData.value?.meta || {})
@@ -417,14 +407,8 @@ const dataAge = computed(() => {
   const updateTime = runesData.value?.updateTime
   if (!updateTime) return '-'
   try {
-    const updated = new Date(updateTime.replace(' ', 'T'))
-    const diffMs = Date.now() - updated.getTime()
-    const diffMin = Math.floor(diffMs / 60000)
-    if (diffMin < 1) return '刚刚'
-    if (diffMin < 60) return `${diffMin}分钟前`
-    const diffHr = Math.floor(diffMin / 60)
-    if (diffHr < 24) return `${diffHr}小时前`
-    return `${Math.floor(diffHr / 24)}天前`
+    const ts = new Date(updateTime.replace(' ', 'T')).getTime() / 1000
+    return formatRelativeTime(ts) || updateTime
   } catch { return updateTime }
 })
 

@@ -55,6 +55,30 @@ export function formatTimestamp(timestamp) {
 }
 
 /**
+ * 格式化相对时间（如 "3分钟前"、"2小时前"、"1天前"）
+ * @param {number} timestamp - Unix 时间戳（秒）或毫秒时间戳
+ * @param {object} opts - 可选项
+ * @param {boolean} opts.seconds - 是否使用秒级精度（默认 false，分钟级）
+ * @returns {string}
+ */
+export function formatRelativeTime(timestamp, opts = {}) {
+  if (!timestamp) return ''
+  const ts = timestamp > 1e12 ? timestamp : timestamp * 1000
+  const diff = Date.now() - ts
+  if (diff < 0) return '刚刚'
+  const seconds = Math.floor(diff / 1000)
+  if (opts.seconds && seconds < 60) return '刚刚'
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}分钟前`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}小时前`
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${days}天前`
+  const date = new Date(ts)
+  return `${date.getMonth() + 1}/${date.getDate()}`
+}
+
+/**
  * 获取评分颜色
  */
 export function getScoreColor(score) {
@@ -74,7 +98,7 @@ export function getScoreColor(score) {
 }
 
 /**
- * 位置名称映射
+ * 位置名称映射（小写 key）
  */
 export const positionNames = {
   top: '上单',
@@ -82,6 +106,17 @@ export const positionNames = {
   mid: '中单',
   adc: 'ADC',
   support: '辅助'
+}
+
+/**
+ * 位置名称映射（大写 key，兼容 LCU API 返回值）
+ */
+export const POSITION_NAMES = {
+  TOP: '上单',
+  JUNGLE: '打野',
+  MID: '中单',
+  ADC: '下路',
+  SUPPORT: '辅助'
 }
 
 /**

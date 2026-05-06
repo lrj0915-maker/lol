@@ -148,6 +148,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useAppStore } from '@/stores/app'
+import { formatRelativeTime } from '@/utils/format'
 import bridge from '@/utils/bridge'
 
 const appStore = useAppStore()
@@ -162,12 +163,6 @@ const quickCredential = ref('')
 const quickServerIndex = ref(18)
 const loginStatus = ref({ status: 'idle', phase: 'idle', message: '', progress: 0 })
 const statusTimer = ref(null)
-const loadingStates = ref({
-  addFriends: false,
-  deleteFriends: false,
-  disenchant: false,
-  closeGame: false
-})
 const feedbackMessage = ref('')
 const feedbackSuccess = ref(true)
 const feedbackTimer = ref(null)
@@ -260,68 +255,7 @@ function getAccountDisplayName(account) {
 
 function formatLastLogin(timestamp) {
   if (!timestamp) return ''
-  const date = new Date(timestamp * 1000)
-  const now = new Date()
-  const diff = now - date
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  if (days === 0) return '今天'
-  if (days === 1) return '昨天'
-  if (days < 7) return `${days}天前`
-  return `${date.getMonth() + 1}/${date.getDate()}`
-}
-
-function getBanBadge(account) {
-  if (!account.ban_info) return ''
-  
-  // 优先使用 ban_end 判断是否已解封
-  if (account.ban_end) {
-    try {
-      const endDate = new Date(account.ban_end)
-      const now = new Date()
-      now.setHours(0, 0, 0, 0) // 重置到当天0点
-      
-      if (now >= endDate) {
-        return '' // 已解封，不显示
-      }
-      
-      // 计算剩余天数
-      const diffTime = endDate - now
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-      
-      if (diffDays > 0) {
-        return `${diffDays}天 ${account.ban_end}`
-      }
-    } catch (e) {
-      console.error('解析封号日期失败:', e)
-    }
-  }
-  
-  // 尝试从 ban_info 中解析日期
-  const dateMatch = account.ban_info.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/)
-  if (dateMatch) {
-    const [, year, month, day] = dateMatch
-    const banEndDate = new Date(year, month - 1, day)
-    const now = new Date()
-    now.setHours(0, 0, 0, 0)
-    
-    if (now >= banEndDate) {
-      return '' // 已解封，不显示
-    }
-    
-    const diffTime = banEndDate - now
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    
-    if (diffDays > 0) {
-      return `${diffDays}天 ${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
-    }
-  }
-  
-  // 检查是否永久封停
-  if (account.ban_info.includes('永久') || account.ban_info.includes('permanent')) {
-    return '永久 永久封停'
-  }
-  
-  return '封号'
+  return formatRelativeTime(timestamp)
 }
 
 function getBanTag(account) {

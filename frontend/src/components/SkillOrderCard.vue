@@ -17,6 +17,7 @@ const displayOrder = computed(() => {
   }
   return props.skill?.order || ''
 })
+const winRate = computed(() => props.skill.play ? (props.skill.win / props.skill.play * 100) : 0)
 </script>
 
 <template>
@@ -27,12 +28,12 @@ const displayOrder = computed(() => {
     <div class="wr-bar">
       <div
         class="wr-fill"
-        :style="{ width: skill.play ? (skill.win / skill.play * 100) + '%' : '0%' }"
+        :style="{ width: winRate + '%' }"
       />
     </div>
     <!-- 胜率数字 -->
     <span class="skill-wr">
-      {{ skill.play ? (skill.win / skill.play * 100).toFixed(1) : '0.0' }}%
+      {{ winRate.toFixed(1) }}%
       <span class="skill-games">({{ skill.play || 0 }}场)</span>
     </span>
   </div>

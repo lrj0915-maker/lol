@@ -1,15 +1,18 @@
 <script setup>
 // 召唤师技能卡片组件
 // 展示召唤师技能图标、胜率和登场率
+import { computed } from 'vue'
 import { getSpellIcon } from '@/utils/ddragon'
 
-defineProps({
+const props = defineProps({
   spell: {
     type: Object,
     required: true,
     // spell 结构: { spell_ids: number[], play: number, win: number, pick_rate: number }
   },
 })
+
+const winRate = computed(() => props.spell.play ? (props.spell.win / props.spell.play * 100) : 0)
 </script>
 
 <template>
@@ -41,11 +44,11 @@ defineProps({
       <div class="wr-bar">
         <div
           class="wr-fill"
-          :style="{ width: spell.play ? (spell.win / spell.play * 100) + '%' : '0%' }"
+          :style="{ width: winRate + '%' }"
         />
       </div>
       <span class="spell-stats">
-        {{ spell.play ? (spell.win / spell.play * 100).toFixed(1) : '0.0' }}%
+        {{ winRate.toFixed(1) }}%
         <span class="spell-games">({{ spell.play || 0 }}场)</span>
       </span>
     </div>

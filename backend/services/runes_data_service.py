@@ -259,7 +259,8 @@ class RunesDataService:
             champions_js = os.path.join(self.resource_root, 'frontend', 'src', 'data', 'champions.js')
             if os.path.exists(champions_js):
                 try:
-                    source = open(champions_js, 'r', encoding='utf-8', errors='ignore').read()
+                    with open(champions_js, 'r', encoding='utf-8', errors='ignore') as f:
+                        source = f.read()
                     pattern = re.compile(r"\{\s*id:\s*(\d+)\s*,\s*key:\s*'([^']+)'", re.MULTILINE)
                     seen_ids = set()
                     for m in pattern.finditer(source):
