@@ -37,6 +37,14 @@ class LCUAPI:
         """获取选人阶段信息"""
         return self.conn.get('/lol-champ-select/v1/session')
 
+    def get_current_rune_page(self):
+        """获取当前符文页"""
+        return self.conn.get('/lol-perks/v1/currentpage')
+
+    def get_rune_pages(self):
+        """获取所有符文页"""
+        return self.conn.get('/lol-perks/v1/pages')
+
     # ========== 自动准备 ==========
     
     def accept_match(self):
@@ -103,3 +111,13 @@ class LCUAPI:
     def get_ranked_stats(self, puuid):
         """获取段位信息"""
         return self.conn.get(f'/lol-ranked/v1/ranked-stats/{puuid}')
+
+    # ========== 英雄熟练度 ==========
+    
+    def get_champion_mastery(self, summoner_id):
+        """获取英雄熟练度"""
+        return self.conn.get(f'/lol-collections/v1/inventories/{summoner_id}/champion-mastery')
+    
+    def get_top_champion_mastery(self, summoner_id, count=5):
+        """获取最熟练的英雄"""
+        return self.conn.get(f'/lol-collections/v1/inventories/{summoner_id}/champion-mastery/top?limit={count}')

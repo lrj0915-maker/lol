@@ -1,122 +1,154 @@
 <template>
   <aside class="sidebar">
-    <div class="logo">
-      <div class="logo-icon">
-        <span>⚔️</span>
-      </div>
-      <div class="logo-glow"></div>
+    <div class="sidebar-top">
+      <router-link to="/match" class="brand" title="LOL 战绩助手">
+        <div class="brand-mark">L</div>
+        <div class="brand-copy">
+          <strong>LOL</strong>
+          <span>战绩助手</span>
+        </div>
+      </router-link>
     </div>
-    
+
     <nav class="nav-menu">
-      <router-link 
-        v-for="item in menuItems" 
+      <router-link
+        v-for="item in menuItems"
         :key="item.path"
         :to="item.path"
         class="nav-item"
         active-class="active"
+        :title="item.label"
       >
+        <span class="nav-indicator"></span>
         <span class="nav-icon">{{ item.icon }}</span>
         <span class="nav-label">{{ item.label }}</span>
-        <div class="nav-indicator"></div>
       </router-link>
     </nav>
-    
+
     <div class="sidebar-footer">
-      <div class="version">v1.0</div>
+      <span class="version">v1.0</span>
     </div>
   </aside>
 </template>
 
 <script setup>
 const menuItems = [
-  { path: '/match', icon: '📊', label: '战绩' },
-  { path: '/analysis', icon: '👥', label: '分析' },
-  { path: '/select', icon: '🎮', label: '选人' },
-  { path: '/history', icon: '📜', label: '历史' },
-  { path: '/settings', icon: '⚙️', label: '设置' }
+  { path: '/login', icon: '登', label: '登录' },
+  { path: '/cache', icon: '注', label: '注入' },
+  { path: '/match', icon: '战', label: '战绩' },
+  { path: '/analysis', icon: '析', label: '分析' },
+  { path: '/select', icon: '选', label: '选人' },
+  { path: '/runes', icon: '符', label: '符文' },
+  { path: '/runes-preview', icon: '预', label: '预览' },
+  { path: '/augments', icon: '强', label: '强化' },
+  { path: '/jungle', icon: '野', label: '野怪' },
+  { path: '/history', icon: '史', label: '历史' },
+  { path: '/settings', icon: '设', label: '设置' },
 ]
 </script>
 
 <style scoped>
 .sidebar {
-  width: 76px;
-  background: var(--bg-secondary);
+  width: var(--sidebar-width, 88px);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: var(--spacing-md) var(--spacing-sm);
-  border-right: 1px solid var(--border-color);
+  align-items: stretch;
+  padding: 12px 10px;
+  gap: 12px;
   position: relative;
   z-index: 10;
 }
 
-.logo {
-  position: relative;
-  margin-bottom: var(--spacing-xl);
-  padding: var(--spacing-sm);
-}
-
-.logo-icon {
-  width: 44px;
-  height: 44px;
-  background: var(--gradient-primary);
-  border-radius: var(--border-radius-lg);
+.sidebar-top {
   display: flex;
-  align-items: center;
   justify-content: center;
-  font-size: 22px;
-  box-shadow: var(--shadow-md);
-  position: relative;
-  z-index: 1;
 }
 
-.logo-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
-  background: var(--accent-secondary);
-  border-radius: 50%;
-  filter: blur(20px);
-  opacity: 0.3;
-  animation: pulse 3s ease-in-out infinite;
+.brand {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px;
+  border-radius: 16px;
+  text-decoration: none;
+  color: var(--text-primary);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--text-inverse);
+  background: var(--accent-gradient);
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.brand-copy strong {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.brand-copy span {
+  font-size: 10px;
+  color: var(--text-secondary);
 }
 
 .nav-menu {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
-  width: 100%;
-  flex: 1;
+  gap: 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+.nav-menu::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-item {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--spacing-sm) var(--spacing-xs);
-  border-radius: var(--border-radius);
+  gap: 5px;
+  padding: 8px 4px;
+  border-radius: 14px;
   text-decoration: none;
-  color: var(--text-muted);
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
+  color: var(--text-tertiary);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .nav-item:hover {
-  background: var(--bg-hover);
   color: var(--text-primary);
-}
-
-.nav-item:hover .nav-icon {
-  transform: scale(1.1);
+  background: var(--surface-hover);
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, rgba(78, 204, 163, 0.15) 0%, rgba(88, 166, 255, 0.1) 100%);
-  color: var(--accent-secondary);
+  color: var(--text-primary);
+  background: var(--surface-active);
+}
+
+.nav-item.active .nav-icon {
+  border-color: var(--accent-border);
+  background: var(--surface-muted);
 }
 
 .nav-item.active .nav-indicator {
@@ -126,38 +158,46 @@ const menuItems = [
 
 .nav-indicator {
   position: absolute;
-  left: 0;
+  left: -10px;
   top: 50%;
-  transform: translateY(-50%) scaleY(0);
   width: 3px;
   height: 24px;
-  background: var(--gradient-primary);
-  border-radius: 0 2px 2px 0;
+  border-radius: 0 999px 999px 0;
+  background: var(--accent-gradient);
   opacity: 0;
-  transition: all var(--transition-normal);
+  transform: translateY(-50%) scaleY(0.65);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .nav-icon {
-  font-size: 20px;
-  margin-bottom: 2px;
-  transition: transform var(--transition-fast);
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-muted);
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .nav-label {
-  font-size: var(--font-size-xs);
-  font-weight: 500;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .sidebar-footer {
-  margin-top: auto;
-  padding-top: var(--spacing-md);
+  display: flex;
+  justify-content: center;
 }
 
 .version {
-  font-size: 10px;
-  color: var(--text-disabled);
   padding: 4px 8px;
-  background: var(--bg-primary);
-  border-radius: var(--border-radius-sm);
+  border-radius: 999px;
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--surface-muted);
+  border: 1px solid var(--border-subtle);
 }
 </style>

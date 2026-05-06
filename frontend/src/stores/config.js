@@ -22,7 +22,7 @@ export const useConfigStore = defineStore('config', () => {
         pickList.value = data.pick || []
       }
     } catch (e) {
-      console.log('获取配置失败，使用默认配置')
+      // 获取配置失败，使用默认配置
     } finally {
       loading.value = false
     }
@@ -33,7 +33,7 @@ export const useConfigStore = defineStore('config', () => {
     try {
       await bridge.setSelectConfig(banList.value, pickList.value)
     } catch (e) {
-      console.log('保存配置失败')
+      // 保存配置失败，静默处理
     }
   }
 

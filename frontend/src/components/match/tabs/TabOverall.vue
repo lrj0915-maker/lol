@@ -120,38 +120,92 @@ function getParticipation(player) {
 <style scoped>
 .data-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+  animation: fadeIn 0.3s ease;
 }
 
-.data-table th, .data-table td {
+.data-table th,
+.data-table td {
   padding: var(--spacing-sm) var(--spacing-md);
   text-align: left;
   border-bottom: 1px solid var(--border-color);
 }
 
 .data-table th {
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-weight: 500;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--bg-secondary);
   cursor: pointer;
   user-select: none;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.data-table th:first-child {
+  border-radius: var(--border-radius-sm) 0 0 0;
+}
+
+.data-table th:last-child {
+  border-radius: 0 var(--border-radius-sm) 0 0;
 }
 
 .data-table th:hover {
   color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.data-table th::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  transition: all var(--transition-fast);
+}
+
+.data-table th:hover::after {
+  background: var(--accent-secondary);
+}
+
+.data-table tbody tr {
+  transition: all var(--transition-fast);
+}
+
+.data-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .data-table tr.is-me {
-  background: rgba(255, 215, 0, 0.1);
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.12) 0%, rgba(255, 215, 0, 0.02) 100%);
+}
+
+.data-table tr.is-me:hover {
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.18) 0%, rgba(255, 215, 0, 0.05) 100%);
+}
+
+.data-table td {
+  font-family: 'Consolas', monospace;
+  font-size: var(--font-size-xs);
 }
 
 .player-cell {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  font-family: var(--font-family);
 }
 
 .me-badge {
   color: var(--radar-me);
+  font-size: 10px;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+  animation: pulse 2s ease-in-out infinite;
 }
 
 .highlight {
@@ -160,8 +214,19 @@ function getParticipation(player) {
 }
 
 .max-mark {
-  color: #ffd700;
+  color: var(--radar-me);
   font-size: 10px;
-  margin-left: 2px;
+  margin-left: 4px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 </style>

@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:layout": "playwright test --config=playwright.layout.config.js",
+    "typecheck": "vue-tsc --noEmit",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest"
   },
   "dependencies": {
     "vue": "^3.4.0",
@@ -17,6 +21,12 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.0",
-    "vite": "^5.0.0"
+    "@playwright/test": "^1.51.0",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^24.1.3",
+    "typescript": "^5.9.2",
+    "vite": "^5.0.0",
+    "vitest": "^2.1.8",
+    "vue-tsc": "^2.2.0"
   }
 }

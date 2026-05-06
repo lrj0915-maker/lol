@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "config_version": 2
+  },
+  "auto_accept": {
+    "enabled": true,
+    "delay_min": 1,
+    "delay_max": 3
+  },
+  "auto_select": {
+    "enabled": false,
+    "oneshot": true,
+    "ban": [
+      350
+    ],
+    "pick": [],
+    "positions": {
+      "top": {
+        "ban": [],
+        "pick": []
+      },
+      "jungle": {
+        "ban": [],
+        "pick": []
+      },
+      "mid": {
+        "ban": [],
+        "pick": []
+      },
+      "adc": {
+        "ban": [],
+        "pick": []
+      },
+      "support": {
+        "ban": [],
+        "pick": []
+      }
+    }
+  },
+  "chat": {
+    "auto_send": true,
+    "send_my_team": true,
+    "send_enemy": true,
+    "hotkey": "F1"
+  },
+  "ingame_chat": {
+    "enabled": true
+  },
+  "auto_friends": [
+    {
+      "name": "羽化门",
+      "tag": "51953"
+    },
+    {
+      "name": "别骂丶易燃易爆炸",
+      "tag": "52962"
+    },
+    {
+      "name": "聚橙为海丶",
+      "tag": "58389"
+    },
+    {
+      "name": "有人似你三分丶",
+      "tag": "20334"
+    },
+    {
+      "name": "暮色丶Twilight",
+      "tag": "54975"
+    }
+  ],
+  "auto_disenchant": true,
+  "jungle_monitor": {
+    "region": {
+      "x": 1146,
+      "y": 109,
+      "width": 263,
+      "height": 58
+    },
+    "interval": 1000,
+    "duplicate_interval": 10,
+    "notify_mode": "voice",
+    "require_side_for_camps": true
+  }
+}

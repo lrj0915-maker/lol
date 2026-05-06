@@ -2,11 +2,12 @@
 import random
 import threading
 import time
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from config import config
+
+# Constants
+READY_CHECK_STATE_IN_PROGRESS = 'InProgress'
+PLAYER_RESPONSE_NONE = 'None'
 
 
 class AutoAcceptService:
@@ -17,6 +18,8 @@ class AutoAcceptService:
         self._delay_min = config.get('auto_accept.delay_min', 1)
         self._delay_max = config.get('auto_accept.delay_max', 3)
         self._pending_accept = False
+        self._pending_lock = threading.RLock()
+        self._last_ready_check_id = None
 
     @property
     def enabled(self):
@@ -44,10 +47,16 @@ class AutoAcceptService:
         player_response = data.get('playerResponse')
 
         # 检测到准备检查且玩家未响应
-        if state == 'InProgress' and player_response == 'None':
-            if not self._pending_accept:
+        if state == READY_CHECK_STATE_IN_PROGRESS and player_response == PLAYER_RESPONSE_NONE:
+            ready_check_id = data.get('id') or data.get('timer') or data.get('state')
+            with self._pending_lock:
+                if ready_check_id and ready_check_id == self._last_ready_check_id:
+                    return
+                if self._pending_accept:
+                    return
+                self._last_ready_check_id = ready_check_id
                 self._pending_accept = True
-                threading.Thread(target=self._delayed_accept, daemon=True).start()
+            threading.Thread(target=self._delayed_accept, daemon=True).start()
 
     def _delayed_accept(self):
         """延迟接受"""
@@ -56,5 +65,6 @@ class AutoAcceptService:
         
         if self._enabled:
             self.api.accept_match()
-        
-        self._pending_accept = False
+
+        with self._pending_lock:
+            self._pending_accept = False

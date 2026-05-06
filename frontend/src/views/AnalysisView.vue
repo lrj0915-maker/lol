@@ -113,49 +113,129 @@
         </div>
       </div>
       
-      <!-- 对方关注 -->
+      <!-- 对方战力分析 -->
       <div class="team-card enemy">
         <div class="card-header">
           <span class="card-title">
             <span class="title-icon">⚔️</span>
-            对方关注
+            对方战力分析
           </span>
           <span class="card-avg" v-if="analysis.enemy_avg">
             平均 <strong>{{ analysis.enemy_avg.toFixed(1) }}</strong> 分
           </span>
         </div>
-        <div class="enemy-content">
-          <div class="highlight-row god" v-if="analysis.enemy_highlights?.god">
-            <img 
-              v-if="analysis.enemy_highlights.god.champion_id" 
-              :src="getChampionIcon(analysis.enemy_highlights.god.champion_id)" 
-              class="champion-icon"
-              @error="(e) => e.target.style.display='none'"
-            />
-            <span class="highlight-badge god">🔥 超神</span>
-            <span class="highlight-name">{{ analysis.enemy_highlights.god.name }}</span>
-            <div class="highlight-stats">
-              <span>胜率 {{ analysis.enemy_highlights.god.win_rate }}%</span>
-              <span>KDA {{ analysis.enemy_highlights.god.kda }}</span>
+        
+        <!-- 横向对比：最强 vs 最弱 -->
+        <div class="enemy-comparison" v-if="analysis.enemy_highlights?.god || analysis.enemy_highlights?.noob">
+          <div class="compare-card strongest" v-if="analysis.enemy_highlights?.god">
+            <div class="compare-header">
+              <span class="compare-badge god">🔥 最强威胁</span>
+              <span class="compare-tip">重点关照</span>
+            </div>
+            <div class="compare-body">
+              <img 
+                v-if="analysis.enemy_highlights.god.champion_id" 
+                :src="getChampionIcon(analysis.enemy_highlights.god.champion_id)" 
+                class="compare-avatar"
+                @error="(e) => e.target.style.display='none'"
+              />
+              <div class="compare-placeholder" v-else>?</div>
+              <div class="compare-name">{{ analysis.enemy_highlights.god.name }}</div>
+              <div class="compare-stats">
+                <div class="stat-item">
+                  <span class="stat-label">胜率</span>
+                  <span class="stat-value">{{ analysis.enemy_highlights.god.win_rate }}%</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">KDA</span>
+                  <span class="stat-value">{{ analysis.enemy_highlights.god.kda }}</span>
+                </div>
+                <div class="stat-item" v-if="analysis.enemy_highlights.god.streak >= 2">
+                  <span class="stat-label">状态</span>
+                  <span class="stat-value streak" :class="analysis.enemy_highlights.god.streak_type">
+                    {{ analysis.enemy_highlights.god.streak_type === 'win' ? '🔥' : '💀' }}{{ analysis.enemy_highlights.god.streak }}连
+                  </span>
+                </div>
+              </div>
+              <div class="compare-advice warn">⚠️ 小心被Carry，优先针对</div>
             </div>
           </div>
-          <div class="highlight-row noob" v-if="analysis.enemy_highlights?.noob">
-            <img 
-              v-if="analysis.enemy_highlights.noob.champion_id" 
-              :src="getChampionIcon(analysis.enemy_highlights.noob.champion_id)" 
-              class="champion-icon"
-              @error="(e) => e.target.style.display='none'"
-            />
-            <span class="highlight-badge noob">💀 牛马</span>
-            <span class="highlight-name">{{ analysis.enemy_highlights.noob.name }}</span>
-            <div class="highlight-stats">
-              <span>胜率 {{ analysis.enemy_highlights.noob.win_rate }}%</span>
-              <span>KDA {{ analysis.enemy_highlights.noob.kda }}</span>
+          
+          <div class="compare-divider">VS</div>
+          
+          <div class="compare-card weakest" v-if="analysis.enemy_highlights?.noob">
+            <div class="compare-header">
+              <span class="compare-badge noob">💀 最弱突破口</span>
+              <span class="compare-tip">集火目标</span>
+            </div>
+            <div class="compare-body">
+              <img 
+                v-if="analysis.enemy_highlights.noob.champion_id" 
+                :src="getChampionIcon(analysis.enemy_highlights.noob.champion_id)" 
+                class="compare-avatar"
+                @error="(e) => e.target.style.display='none'"
+              />
+              <div class="compare-placeholder" v-else>?</div>
+              <div class="compare-name">{{ analysis.enemy_highlights.noob.name }}</div>
+              <div class="compare-stats">
+                <div class="stat-item">
+                  <span class="stat-label">胜率</span>
+                  <span class="stat-value">{{ analysis.enemy_highlights.noob.win_rate }}%</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">KDA</span>
+                  <span class="stat-value">{{ analysis.enemy_highlights.noob.kda }}</span>
+                </div>
+                <div class="stat-item" v-if="analysis.enemy_highlights.noob.streak >= 2">
+                  <span class="stat-label">状态</span>
+                  <span class="stat-value streak" :class="analysis.enemy_highlights.noob.streak_type">
+                    {{ analysis.enemy_highlights.noob.streak_type === 'win' ? '🔥' : '💀' }}{{ analysis.enemy_highlights.noob.streak }}连
+                  </span>
+                </div>
+              </div>
+              <div class="compare-advice success">✅ 送分童子，可以针对</div>
             </div>
           </div>
-          <div class="no-highlight" v-if="!analysis.enemy_highlights?.god && !analysis.enemy_highlights?.noob">
-            {{ analysis.enemy_avg > 0 ? '对方无特别关注目标' : '暂无对方数据 (选人阶段可获取)' }}
+        </div>
+        
+        <!-- 展开查看全部对手 -->
+        <div class="enemy-expand" v-if="analysis.enemy_team && analysis.enemy_team.length > 0">
+          <button class="expand-btn" @click="showAllEnemies = !showAllEnemies">
+            <span>{{ showAllEnemies ? '收起' : '查看全部对手' }}</span>
+            <span class="expand-icon" :class="{ expanded: showAllEnemies }">▼</span>
+          </button>
+          
+          <div class="enemy-list" v-show="showAllEnemies">
+            <div 
+              v-for="(player, index) in analysis.enemy_team" 
+              :key="player.name"
+              class="player-row enemy-row"
+              :style="{ animationDelay: `${index * 0.05}s` }"
+            >
+              <img 
+                v-if="player.champion_id" 
+                :src="getChampionIcon(player.champion_id)" 
+                class="champion-icon"
+                @error="(e) => e.target.style.display='none'"
+              />
+              <span v-else class="champion-placeholder">?</span>
+              <span class="rank-badge" :class="`rank-${player.rank}`">
+                {{ getRankIcon(player.rank) }}{{ player.rank }}
+              </span>
+              <span class="player-name">{{ player.name || '未知' }}</span>
+              <div class="player-stats">
+                <span class="stat">胜率 <strong>{{ player.win_rate }}%</strong></span>
+                <span class="stat">KDA <strong>{{ player.kda }}</strong></span>
+                <span class="streak" v-if="player.streak >= 2" :class="player.streak_type">
+                  {{ player.streak_type === 'win' ? '🔥连胜' : '💀连败' }}{{ player.streak }}
+                </span>
+              </div>
+            </div>
           </div>
+        </div>
+        
+        <div class="no-highlight" v-if="!analysis.enemy_highlights?.god && !analysis.enemy_highlights?.noob">
+          {{ analysis.enemy_avg > 0 ? '对方无特别关注目标' : '暂无对方数据 (选人阶段可获取)' }}
         </div>
       </div>
     </div>
@@ -165,12 +245,14 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { bridge } from '@/utils/bridge'
-import { champions } from '@/data/champions'
+import { getChampionIcon } from '@/utils/ddragon'
+import EmptyStateCard from '@/components/EmptyStateCard.vue'
 
 const loading = ref(false)
 const analysis = ref(null)
 const sendStatus = reactive({ msg: '', type: '' })
 const ingameTauntEnabled = ref(false)
+const showAllEnemies = ref(false)  // 新增：控制展开对方全部队员
 const chatConfig = reactive({
   autoSend: false,
   sendMyTeam: true,
@@ -181,14 +263,6 @@ const chatConfig = reactive({
 function getRankIcon(rank) {
   const icons = { S: '🔥', A: '⭐', B: '😐', C: '😰', D: '💀' }
   return icons[rank] || ''
-}
-
-function getChampionIcon(championId) {
-  const champ = champions.find(c => c.id === championId)
-  if (champ) {
-    return `https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/${champ.key}.png`
-  }
-  return ''
 }
 
 function showStatus(msg, type = 'info') {
@@ -292,25 +366,59 @@ onUnmounted(() => {
   padding: var(--spacing-lg);
   height: 100%;
   overflow-y: auto;
+  animation: pageEnter 0.5s ease;
+  position: relative;
+}
+
+.analysis-view::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 250px;
+  background: radial-gradient(ellipse at top center, rgba(78, 204, 163, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes pageEnter {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  position: relative;
+  z-index: 1;
 }
 
 .page-title {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xl);
   font-weight: 600;
 }
 
 .title-icon {
-  font-size: var(--font-size-xl);
+  font-size: 32px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+  animation: iconPulse 3s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .header-actions {
@@ -321,48 +429,77 @@ onUnmounted(() => {
 .action-btn {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: 8px 16px;
-  border-radius: var(--border-radius);
+  gap: var(--spacing-sm);
+  padding: 12px 20px;
+  border-radius: var(--border-radius-lg);
   font-size: var(--font-size-sm);
   font-weight: 500;
-  background: var(--bg-card);
+  background: var(--gradient-card);
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
-  transition: all var(--transition-fast);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+  transition: left 0.5s ease;
 }
 
 .action-btn:hover:not(:disabled) {
   background: var(--bg-hover);
   color: var(--text-primary);
   border-color: var(--border-color-light);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.action-btn:hover:not(:disabled)::before {
+  left: 100%;
 }
 
 .action-btn.primary {
   background: var(--gradient-primary);
   color: var(--bg-primary);
   border: none;
+  box-shadow: var(--shadow-md);
 }
 
 .action-btn.primary:hover:not(:disabled) {
-  box-shadow: var(--glow-primary);
-  transform: translateY(-1px);
+  box-shadow: 0 0 30px rgba(78, 204, 163, 0.4), var(--shadow-lg);
+  transform: translateY(-3px);
 }
 
 .action-btn.taunt {
   background: linear-gradient(135deg, #ff6b35, #e94560);
   color: white;
   border: none;
+  box-shadow: var(--shadow-md);
+  animation: tauntPulse 2s ease-in-out infinite;
+}
+
+@keyframes tauntPulse {
+  0%, 100% { box-shadow: 0 0 15px rgba(255, 107, 53, 0.3); }
+  50% { box-shadow: 0 0 25px rgba(255, 107, 53, 0.5); }
 }
 
 .action-btn.taunt:hover {
-  box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
-  transform: translateY(-1px);
+  box-shadow: 0 0 40px rgba(255, 107, 53, 0.6), var(--shadow-lg);
+  transform: translateY(-4px);
+  animation: none;
 }
 
 .action-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none !important;
 }
 
 .btn-icon {
@@ -375,12 +512,27 @@ onUnmounted(() => {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-md);
-  background: var(--bg-card);
-  border-radius: var(--border-radius);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--gradient-card);
+  border-radius: var(--border-radius-lg);
   border: 1px solid var(--border-color);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
   font-size: var(--font-size-sm);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  z-index: 1;
+}
+
+.config-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-primary);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+  opacity: 0.5;
 }
 
 .config-item {
@@ -495,13 +647,59 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  position: relative;
+  z-index: 1;
 }
 
 .team-card {
-  background: var(--bg-card);
+  background: var(--gradient-card);
   border-radius: var(--border-radius-lg);
   border: 1px solid var(--border-color);
   overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-normal);
+  position: relative;
+  animation: cardEnter 0.5s ease backwards;
+}
+
+.team-card:first-child { animation-delay: 0.1s; }
+.team-card:last-child { animation-delay: 0.2s; }
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.team-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.team-card:hover {
+  border-color: var(--border-color-light);
+  box-shadow: var(--shadow-xl), 0 0 40px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+}
+
+.team-card:hover::before {
+  opacity: 1;
+}
+
+.team-card.enemy::before {
+  background: var(--gradient-lose);
 }
 
 .card-header {
@@ -547,15 +745,19 @@ onUnmounted(() => {
   transition: all var(--transition-fast);
   animation: fadeIn 0.3s ease forwards;
   opacity: 0;
+  border: 1px solid transparent;
 }
 
 .player-row:hover {
   background: var(--bg-hover);
+  border-color: var(--border-color);
+  transform: translateX(4px);
 }
 
 .player-row.is-me {
-  border-left: 3px solid var(--radar-me);
-  background: rgba(255, 215, 0, 0.05);
+  border-left: 4px solid var(--radar-me);
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.02) 100%);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
 }
 
 .champion-icon {
@@ -638,63 +840,331 @@ onUnmounted(() => {
   padding: var(--spacing-sm);
 }
 
+/* 横向对比布局 */
+.enemy-comparison {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  align-items: stretch;
+}
+
+.compare-card {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-md);
+}
+
+.compare-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-xl);
+}
+
+.compare-card.strongest {
+  border-color: rgba(255, 107, 53, 0.3);
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.05) 0%, var(--bg-secondary) 50%);
+  animation: godGlow 3s ease-in-out infinite;
+}
+
+.compare-card.weakest {
+  border-color: rgba(233, 69, 96, 0.3);
+  background: linear-gradient(135deg, rgba(233, 69, 96, 0.05) 0%, var(--bg-secondary) 50%);
+}
+
+.compare-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.compare-badge {
+  padding: 6px 14px;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.compare-badge.god {
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.25) 0%, rgba(255, 107, 53, 0.15) 100%);
+  color: #ff6b35;
+  border: 1px solid rgba(255, 107, 53, 0.3);
+}
+
+.compare-badge.noob {
+  background: linear-gradient(135deg, rgba(233, 69, 96, 0.25) 0%, rgba(233, 69, 96, 0.15) 100%);
+  color: var(--color-lose);
+  border: 1px solid rgba(233, 69, 96, 0.3);
+}
+
+.compare-tip {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.compare-body {
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.compare-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-normal);
+}
+
+.compare-card:hover .compare-avatar {
+  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+}
+
+.compare-card.strongest .compare-avatar {
+  border-color: #ff6b35;
+}
+
+.compare-card.weakest .compare-avatar {
+  border-color: var(--color-lose);
+}
+
+.compare-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 3px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+  color: var(--text-muted);
+}
+
+.compare-name {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.compare-stats {
+  display: flex;
+  gap: var(--spacing-lg);
+  width: 100%;
+  justify-content: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: 'Consolas', monospace;
+}
+
+.stat-value.streak.win {
+  color: var(--color-win);
+}
+
+.stat-value.streak.lose {
+  color: var(--color-lose);
+}
+
+.compare-advice {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-align: center;
+}
+
+.compare-advice.warn {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.compare-advice.success {
+  background: rgba(78, 204, 163, 0.15);
+  color: var(--color-win);
+  border: 1px solid rgba(78, 204, 163, 0.3);
+}
+
+.compare-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-muted);
+  opacity: 0.5;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 展开按钮 */
+.enemy-expand {
+  padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-lg);
+}
+
+.expand-btn {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.expand-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-color-light);
+}
+
+.expand-icon {
+  transition: transform var(--transition-fast);
+  font-size: var(--font-size-xs);
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.enemy-list {
+  margin-top: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.enemy-row {
+  border-left: 3px solid var(--border-color);
+}
+
+.enemy-row:hover {
+  border-left-color: var(--accent-secondary);
+}
+
 .highlight-row {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
   background: var(--bg-secondary);
   border-radius: var(--border-radius);
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
   transition: all var(--transition-fast);
+  border: 1px solid transparent;
 }
 
 .highlight-row:hover {
   background: var(--bg-hover);
+  transform: translateX(4px);
 }
 
 .highlight-row.god {
-  border-left: 3px solid #ff6b35;
+  border-left: 4px solid #ff6b35;
+  background: linear-gradient(90deg, rgba(255, 107, 53, 0.12) 0%, transparent 50%);
+  box-shadow: 0 0 20px rgba(255, 107, 53, 0.15);
+  animation: godGlow 3s ease-in-out infinite;
+}
+
+@keyframes godGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(255, 107, 53, 0.1); }
+  50% { box-shadow: 0 0 30px rgba(255, 107, 53, 0.25); }
 }
 
 .highlight-row.noob {
-  border-left: 3px solid var(--color-lose);
+  border-left: 4px solid var(--color-lose);
+  background: linear-gradient(90deg, rgba(233, 69, 96, 0.12) 0%, transparent 50%);
+  box-shadow: 0 0 20px rgba(233, 69, 96, 0.15);
 }
 
 .highlight-badge {
-  padding: 2px 10px;
+  padding: 4px 12px;
   border-radius: var(--border-radius-sm);
   font-size: var(--font-size-xs);
   font-weight: 600;
 }
 
 .highlight-badge.god {
-  background: rgba(255, 107, 53, 0.2);
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.25) 0%, rgba(255, 107, 53, 0.15) 100%);
   color: #ff6b35;
+  border: 1px solid rgba(255, 107, 53, 0.3);
 }
 
 .highlight-badge.noob {
-  background: rgba(233, 69, 96, 0.2);
+  background: linear-gradient(135deg, rgba(233, 69, 96, 0.25) 0%, rgba(233, 69, 96, 0.15) 100%);
   color: var(--color-lose);
+  border: 1px solid rgba(233, 69, 96, 0.3);
 }
 
 .highlight-name {
   flex: 1;
   font-size: var(--font-size-sm);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .highlight-stats {
   display: flex;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
+  font-family: 'Consolas', monospace;
 }
 
 .no-highlight {
   text-align: center;
   color: var(--text-muted);
-  padding: var(--spacing-lg);
+  padding: var(--spacing-xl);
   font-size: var(--font-size-sm);
 }
 

@@ -1,9 +1,8 @@
 """聊天发送服务 - 发送战绩信息到游戏聊天"""
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
+from logger import get_logger
 from config import config
+
+log = get_logger('ChatSender')
 
 
 class ChatSenderService:
@@ -16,12 +15,12 @@ class ChatSenderService:
             # 获取当前对话
             conversations = self.api.get('/lol-chat/v1/conversations')
             if not conversations:
-                print("无法获取对话列表")
+                log.warning("无法获取对话列表")
                 return False
             
-            print(f"═══════════★找到 {len(conversations)} 个对话")
+            log.debug("找到 %d 个对话", len(conversations))
             for conv in conversations:
-                print(f"  - 类型: {conv.get('type')}, ID: {conv.get('id')}")
+                log.debug("  - 类型: %s, ID: %s", conv.get('type'), conv.get('id'))
             
             # 查找可用的聊天室（按优先级）
             target_conv = None
@@ -32,7 +31,7 @@ class ChatSenderService:
                 for conv in conversations:
                     if conv.get('type') == ptype:
                         target_conv = conv
-                        print(f"选择聊天室: {ptype}")
+                        log.debug("选择聊天室: %s", ptype)
                         break
                 if target_conv:
                     break
@@ -42,11 +41,11 @@ class ChatSenderService:
                 for conv in conversations:
                     if conv.get('type') == 'chat':
                         target_conv = conv
-                        print(f"选择chat聊天室: {conv.get('id')}")
+                        log.debug("选择chat聊天室: %s", conv.get('id'))
                         break
             
             if not target_conv:
-                print("未找到合适的聊天室")
+                log.warning("未找到合适的聊天室")
                 return False
             
             conv_id = target_conv.get('id')
@@ -57,13 +56,11 @@ class ChatSenderService:
                 'type': 'chat'
             })
             
-            print(f"发送结果: {result}")
+            log.debug("发送结果: %s", result)
             return result is not None and result is not False
             
         except Exception as e:
-            print(f"发送聊天消息错误: {e}")
-            import traceback
-            traceback.print_exc()
+            log.error("发送聊天消息错误: %s", e)
             return False
     
     def format_team_analysis(self, analysis, options=None):
@@ -115,7 +112,7 @@ class ChatSenderService:
             lines.append("★═══════════════════════════════════════════★")
             god_name = my_god['name'] if my_god else '无'
             noob_name = my_noob['name'] if my_noob else '无'
-            lines.append(f"║  🔥本局超神: {god_name}   💀本局牛马: {noob_name}  ║")
+            lines.append(f"║  🔥本局超神: {god_name}   💀本局送分: {noob_name}  ║")
             lines.append("★═══════════════════════════════════════════★")
             
             msg_my_team = '\n'.join(lines)
@@ -137,10 +134,10 @@ class ChatSenderService:
                 if enemy.get('noob'):
                     n = enemy['noob']
                     name = n['name'][:14].ljust(14)
-                    lines.append(f"║  💀【牛马】{name} ║ {int(n['win_rate'])}% ║ KDA {n['kda']}  ║")
+                    lines.append(f"║  💀【送分】{name} ║ {int(n['win_rate'])}% ║ KDA {n['kda']}  ║")
                 
                 lines.append("★═══════════════════════════════════════════★")
-                lines.append("║     集火牛马！小心超神！稳住我们能赢！    ║")
+                lines.append("║     集火送分童子！小心超神！稳住能赢！  ║")
                 lines.append("★═══════════════════════════════════════════★")
                 
                 msg_enemy = '\n'.join(lines)

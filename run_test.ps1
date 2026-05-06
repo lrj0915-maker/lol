@@ -1,0 +1,1 @@
+python "c:\Users\Administrator\lol\lol-assistant\test_opgg.py"

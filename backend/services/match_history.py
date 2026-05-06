@@ -1,4 +1,7 @@
 """战绩分析服务"""
+from logger import get_logger
+
+log = get_logger('MatchHistory')
 
 
 class MatchHistoryService:
@@ -6,6 +9,7 @@ class MatchHistoryService:
         self.api = api
         self.events = events
         self._on_game_end_callback = None
+        self._champion_names = {}  # 缓存英雄名称
 
     def set_game_end_callback(self, callback):
         """设置游戏结束回调"""
@@ -14,6 +18,79 @@ class MatchHistoryService:
     def start(self):
         """启动服务"""
         self.events.subscribe('/lol-end-of-game/v1/eog-stats-block', self._on_game_end)
+        self._load_champion_names()
+
+    def _load_champion_names(self):
+        """加载英雄名称映射"""
+        try:
+            champions = self.api.get_all_champions()
+            if champions:
+                for champ in champions:
+                    self._champion_names[champ.get('id')] = champ.get('name', '')
+        except Exception as e:
+            log.warning("加载英雄名称失败: %s", e)
+
+    def _get_top_champions(self, puuid):
+        """从历史战绩统计近期爱玩英雄"""
+        try:
+            log.debug("获取 puuid=%s", puuid)
+            matches = self.api.get_match_history(puuid, 0, 20)
+            if not matches:
+                log.debug("无战绩数据")
+                return []
+            
+            games = matches.get('games', {}).get('games', [])
+            if not games:
+                log.debug("games为空")
+                return []
+            
+            # 统计英雄使用次数
+            champion_count = {}
+            for game in games:
+                participants = game.get('participants', [])
+                identities = game.get('participantIdentities', [])
+                
+                # 找到这个玩家的participantId
+                my_participant_id = None
+                for identity in identities:
+                    player_info = identity.get('player', {})
+                    if player_info.get('puuid') == puuid:
+                        my_participant_id = identity.get('participantId')
+                        break
+                
+                if my_participant_id is None:
+                    continue
+                
+                # 找到对应的participant获取championId
+                for p in participants:
+                    if p.get('participantId') == my_participant_id:
+                        champ_id = p.get('championId')
+                        if champ_id:
+                            if champ_id not in champion_count:
+                                champion_count[champ_id] = {'count': 0, 'wins': 0}
+                            champion_count[champ_id]['count'] += 1
+                            if p.get('stats', {}).get('win'):
+                                champion_count[champ_id]['wins'] += 1
+                        break
+            
+            # 按使用次数排序，取前5
+            sorted_champs = sorted(champion_count.items(), key=lambda x: x[1]['count'], reverse=True)[:5]
+            
+            result = []
+            for champ_id, data in sorted_champs:
+                champ_name = self._champion_names.get(champ_id, '')
+                result.append({
+                    'champion_id': champ_id,
+                    'champion_name': champ_name,
+                    'games': data['count'],
+                    'wins': data['wins']
+                })
+            
+            log.debug("近期爱玩结果: %s", result)
+            return result
+        except Exception as e:
+            log.warning("获取近期爱玩失败: %s", e)
+            return []
 
     def stop(self):
         """停止服务"""
@@ -116,6 +193,9 @@ class MatchHistoryService:
         """处理单个玩家数据"""
         stats = player.get('stats', {})
         
+        # 调试日志
+        log.debug("player keys: %s", list(player.keys()))
+        
         # 尝试多种字段名获取召唤师名字
         summoner_name = (
             player.get('summonerName') or 
@@ -132,12 +212,21 @@ class MatchHistoryService:
             ''
         )
         
+        # 获取近期爱玩英雄
+        top_champions = []
+        puuid = player.get('puuid')
+        log.debug("玩家处理 summoner_name=%s, puuid=%s", summoner_name, puuid)
+        if puuid:
+            top_champions = self._get_top_champions(puuid)
+        
         return {
             'summoner_name': summoner_name,
+            'tag_line': player.get('riotIdTagLine') or player.get('gameTag') or '',
             'champion_id': player.get('championId', 0),
             'champion_name': champion_name,
             'position': player.get('selectedPosition') or player.get('detectedTeamPosition') or '',
             'level': stats.get('LEVEL', 0),
+            'top_champions': top_champions,
             
             # KDA
             'kills': stats.get('CHAMPIONS_KILLED', 0),
@@ -210,6 +299,10 @@ class MatchHistoryService:
             # 召唤师技能
             'spell1': player.get('spell1Id', 0),
             'spell2': player.get('spell2Id', 0),
+            'perks': [
+                player.get('perk0') or stats.get('PERK0', 0),
+                player.get('perkSubStyle') or stats.get('PERK_SUB_STYLE', 0),
+            ],
             
             # 评分 - 尝试多种字段
             'game_score': stats.get('GAME_SCORE') or stats.get('SCORE') or '',
@@ -220,7 +313,7 @@ class MatchHistoryService:
         if not team:
             return []
 
-        # 计算队伍总和用于归一化
+        # 计算队伍总和和最大值用于归一化
         totals = {
             'damage': sum(p['total_damage'] for p in team),
             'deaths': sum(p['deaths'] for p in team),
@@ -232,27 +325,38 @@ class MatchHistoryService:
             ),
             'kills_assists': sum(p['kills'] + p['assists'] for p in team),
         }
+        
+        # 计算最大值用于归一化（让最高的玩家接近100）
+        max_vals = {
+            'damage': max(p['total_damage'] for p in team) if team else 1,
+            'gold': max(p['gold_earned'] for p in team) if team else 1,
+            'vision': max(p['vision_score'] for p in team) if team else 1,
+            'kills_assists': max(p['kills'] + p['assists'] for p in team) if team else 1,
+        }
 
         radar_data = []
         for player in team:
-            # 计算各维度得分 (0-100)
-            damage_score = (player['total_damage'] / totals['damage'] * 100) if totals['damage'] > 0 else 0
+            # 计算各维度得分 (0-100)，使用最大值归一化，让最高的接近100
+            damage_score = (player['total_damage'] / max_vals['damage'] * 100) if max_vals['damage'] > 0 else 0
             
-            # 生存：死亡越少越好
-            avg_deaths = totals['deaths'] / len(team) if team else 1
-            survival_score = max(0, 100 - (player['deaths'] / avg_deaths * 50)) if avg_deaths > 0 else 100
+            # 生存：死亡越少越好，0死=100分，死亡多则分数低
+            max_deaths = max(p['deaths'] for p in team) if team else 1
+            if max_deaths == 0:
+                survival_score = 100
+            else:
+                survival_score = max(0, 100 - (player['deaths'] / max_deaths * 80))
             
-            gold_score = (player['gold_earned'] / totals['gold'] * 100) if totals['gold'] > 0 else 0
-            vision_score = (player['vision_score'] / totals['vision'] * 100) if totals['vision'] > 0 else 0
+            gold_score = (player['gold_earned'] / max_vals['gold'] * 100) if max_vals['gold'] > 0 else 0
+            vision_score = (player['vision_score'] / max_vals['vision'] * 100) if max_vals['vision'] > 0 else 0
             
+            # 目标：按队伍占比，但放大5倍（因为5人分）
             objective_score = 0
             if totals['objectives'] > 0:
                 player_obj = player['turrets_killed'] + player.get('dragons_killed', 0) + player.get('barons_killed', 0)
-                objective_score = (player_obj / totals['objectives'] * 100)
+                objective_score = min(100, player_obj / totals['objectives'] * 100 * 5)
             
-            teamfight_score = 0
-            if totals['kills_assists'] > 0:
-                teamfight_score = ((player['kills'] + player['assists']) / totals['kills_assists'] * 100)
+            # 团战参与
+            teamfight_score = (player['kills'] + player['assists']) / max_vals['kills_assists'] * 100 if max_vals['kills_assists'] > 0 else 0
 
             radar_data.append({
                 'summoner_name': player['summoner_name'],

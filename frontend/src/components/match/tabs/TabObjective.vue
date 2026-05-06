@@ -105,31 +105,255 @@ function isMax(key, player) {
 </script>
 
 <style scoped>
-.tab-objective { display: flex; flex-direction: column; gap: var(--spacing-md); }
-.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); }
-.chart-card { background: var(--bg-secondary); padding: var(--spacing-md); border-radius: var(--border-radius); }
-.chart-card h4 { margin-bottom: var(--spacing-md); color: var(--text-secondary); font-size: var(--font-size-sm); }
-.bar-chart { display: flex; flex-direction: column; gap: var(--spacing-sm); }
-.bar-item { display: flex; align-items: center; gap: var(--spacing-sm); }
-.bar-label { width: 80px; font-size: var(--font-size-xs); color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bar-track { flex: 1; height: 8px; background: var(--bg-primary); border-radius: 4px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 4px; }
-.bar-fill.turret { background: var(--color-warning); }
-.bar-value { width: 30px; text-align: right; font-size: var(--font-size-xs); }
-.objective-list { display: flex; flex-direction: column; gap: var(--spacing-sm); }
-.obj-item { display: flex; align-items: center; gap: var(--spacing-sm); }
-.obj-icon { font-size: 20px; }
-.obj-label { flex: 1; color: var(--text-secondary); }
-.obj-value { font-weight: 600; }
+.tab-objective {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  animation: fadeIn 0.3s ease;
+}
 
-.objective-table { width: 100%; border-collapse: collapse; }
-.objective-table th, .objective-table td { padding: var(--spacing-sm) var(--spacing-md); text-align: left; border-bottom: 1px solid var(--border-color); }
-.objective-table th { color: var(--text-secondary); font-weight: 500; font-size: var(--font-size-xs); }
-.objective-table tr.is-me { background: rgba(255, 215, 0, 0.1); }
-.player-cell { display: flex; align-items: center; gap: 4px; }
-.me-badge { color: var(--radar-me); }
-.highlight { color: var(--accent-secondary); font-weight: 600; }
-.max-mark { color: #ffd700; font-size: 10px; margin-left: 2px; }
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
 
-.team-summary .team-objectives { display: flex; gap: var(--spacing-lg); color: var(--text-secondary); font-size: var(--font-size-sm); }
+.chart-card {
+  background: var(--gradient-card);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+}
+
+.chart-card:hover {
+  border-color: var(--border-color-light);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.chart-card h4 {
+  margin-bottom: var(--spacing-md);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.chart-card h4::before {
+  content: '';
+  width: 3px;
+  height: 14px;
+  background: var(--gradient-gold);
+  border-radius: 2px;
+}
+
+.bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.bar-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 6px 8px;
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.bar-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.bar-label {
+  width: 80px;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar-track {
+  flex: 1;
+  height: 10px;
+  background: var(--bg-primary);
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 100%);
+  border-radius: 5px 5px 0 0;
+}
+
+.bar-fill.turret {
+  background: linear-gradient(90deg, #f39c12 0%, #e67e22 50%, #d35400 100%);
+  box-shadow: 0 0 12px rgba(243, 156, 18, 0.5);
+}
+
+.bar-value {
+  width: 30px;
+  text-align: right;
+  font-size: var(--font-size-xs);
+  font-family: 'Consolas', monospace;
+}
+
+.objective-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.obj-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-primary);
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.obj-item:hover {
+  background: var(--bg-hover);
+  transform: translateX(4px);
+}
+
+.obj-icon {
+  font-size: 24px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.obj-label {
+  flex: 1;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.obj-value {
+  font-weight: 600;
+  font-size: var(--font-size-md);
+  font-family: 'Consolas', monospace;
+  color: var(--text-primary);
+}
+
+.objective-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.objective-table th,
+.objective-table td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.objective-table th {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--bg-primary);
+}
+
+.objective-table th:first-child {
+  border-radius: var(--border-radius-sm) 0 0 0;
+}
+
+.objective-table th:last-child {
+  border-radius: 0 var(--border-radius-sm) 0 0;
+}
+
+.objective-table tbody tr {
+  transition: all var(--transition-fast);
+}
+
+.objective-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.objective-table tr.is-me {
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.02) 100%);
+}
+
+.objective-table tr.is-me:hover {
+  background: linear-gradient(90deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.05) 100%);
+}
+
+.player-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.me-badge {
+  color: var(--radar-me);
+  font-size: 10px;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+.highlight {
+  color: var(--accent-secondary);
+  font-weight: 600;
+}
+
+.max-mark {
+  color: var(--radar-me);
+  font-size: 10px;
+  margin-left: 4px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.team-summary {
+  background: linear-gradient(135deg, rgba(78, 204, 163, 0.1) 0%, rgba(88, 166, 255, 0.1) 100%);
+  border: 1px solid rgba(78, 204, 163, 0.2);
+}
+
+.team-summary .team-objectives {
+  display: flex;
+  gap: var(--spacing-xl);
+  justify-content: center;
+}
+
+.team-summary .team-objectives span {
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--bg-primary);
+  border-radius: var(--border-radius-sm);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
 </style>

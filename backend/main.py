@@ -15,10 +15,15 @@ if backend_dir not in sys.path:
 if getattr(sys, 'frozen', False):
     meipass = sys._MEIPASS
     backend_in_meipass = os.path.join(meipass, 'backend')
-    if os.path.exists(backend_in_meipass) and backend_in_meipass not in sys.path:
+    if backend_in_meipass not in sys.path:
         sys.path.insert(0, backend_in_meipass)
 
 import webview
+
+from logger import get_logger
+from paths import get_app_root, get_resource_root
+
+log = get_logger("Main")
 
 # 延迟导入 bridge，确保路径已设置
 from bridge import Bridge
@@ -41,7 +46,7 @@ def is_port_open(port, host='127.0.0.1'):
             sock.close()
             if result == 0:
                 return True
-        except:
+        except Exception:
             pass
     return False
 
@@ -61,10 +66,10 @@ def start_dev_server(frontend_dir):
     # 如果端口已经打开，说明 dev server 已在运行
     existing_port = find_available_port()
     if existing_port:
-        print(f'Dev server 已在运行 (端口 {existing_port})')
+        log.info("Dev server 已在运行 (端口 %d)", existing_port)
         return existing_port
     
-    print('正在启动 Vite dev server...')
+    log.info("正在启动 Vite dev server...")
     
     try:
         # 直接使用 npx vite，更可靠
@@ -86,31 +91,29 @@ def start_dev_server(frontend_dir):
             )
         
         # 等待 dev server 启动（最多 30 秒）
-        print('等待 dev server 启动...')
+        log.info("等待 dev server 启动...")
         for i in range(60):
             port = find_available_port()
             if port:
-                print(f'Dev server 启动成功! (端口 {port})')
+                log.info("Dev server 启动成功! (端口 %d)", port)
                 return port
             
             # 检查进程是否还在运行
             if _dev_server_process.poll() is not None:
                 # 进程已退出，读取输出
                 output = _dev_server_process.stdout.read().decode('utf-8', errors='ignore')
-                print(f'Dev server 进程异常退出:\n{output}')
+                log.error("Dev server 进程异常退出:\n%s", output)
                 return None
             
             time.sleep(0.5)
             if i % 10 == 9:
-                print(f'  已等待 {(i+1)//2} 秒...')
+                log.info("  已等待 %d 秒...", (i+1)//2)
         
-        print('Dev server 启动超时（30秒）')
+        log.warning("Dev server 启动超时（30秒）")
         return None
         
     except Exception as e:
-        print(f'启动 dev server 失败: {e}')
-        import traceback
-        traceback.print_exc()
+        log.error("启动 dev server 失败: %s", e, exc_info=True)
         return None
 
 
@@ -123,22 +126,23 @@ def cleanup_dev_server():
                 subprocess.call(['taskkill', '/F', '/T', '/PID', str(_dev_server_process.pid)],
                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             else:
-                _dev_server_process.terminate()
-            print('Dev server 已关闭')
-        except:
-            pass
+                import signal
+                os.killpg(os.getpgid(_dev_server_process.pid), signal.SIGTERM)
+                _dev_server_process.wait(timeout=3)
+            log.info("Dev server 已关闭")
+        except Exception:
+            # 最后手段：强杀
+            try:
+                _dev_server_process.kill()
+            except Exception:
+                pass
+        finally:
+            _dev_server_process = None
 
 
 def get_frontend_path():
     """获取前端文件路径"""
-    if getattr(sys, 'frozen', False):
-        # 打包后
-        base_path = sys._MEIPASS
-    else:
-        # 开发环境
-        base_path = os.path.dirname(os.path.dirname(__file__))
-    
-    return os.path.join(base_path, 'frontend', 'dist', 'index.html')
+    return os.path.join(get_resource_root(), 'frontend', 'dist', 'index.html')
 
 
 def main():
@@ -149,13 +153,12 @@ def main():
     # 开发环境使用 dev server
     if not os.path.exists(frontend_path):
         # 获取 frontend 目录
-        base_path = os.path.dirname(os.path.dirname(__file__))
-        frontend_dir = os.path.join(base_path, 'frontend')
+        frontend_dir = os.path.join(get_resource_root(), 'frontend')
         
         # 自动启动 dev server
         port = start_dev_server(frontend_dir)
         if not port:
-            print('警告: Dev server 未能启动，请手动运行 npm run dev')
+            log.warning("Dev server 未能启动，请手动运行 npm run dev")
             port = 5173  # 默认端口
         
         # 注册退出时清理
@@ -168,9 +171,9 @@ def main():
     window = webview.create_window(
         title='LOL 战绩助手',
         url=url,
-        width=1200,
-        height=800,
-        min_size=(1000, 700),
+        width=1400,
+        height=900,
+        min_size=(1200, 800),
         js_api=bridge,
         frameless=False,
         easy_drag=False
@@ -184,6 +187,7 @@ def main():
     
     window.events.loaded += on_loaded
     
+    # 开启调试模式以便查看错误
     webview.start(debug=False)
 
 

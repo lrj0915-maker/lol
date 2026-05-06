@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+
+# Build / packaging
+build/
+dist/
+*.spec
+!build_config/
+!build_config/*.spec
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/node_modules/.vite/
+frontend/test-results/
+frontend/playwright-report/
+frontend/.vite/
+frontend/nul
+
+# Runtime data
+data/history.db
+data/history.db-shm
+data/history.db-wal
+data/logs/
+data/augments.json
+data/runes.json
+data/accounts.json
+data/cache_config.json
+data/*.log
+data/*.tmp
+backend/data/*.log
+
+# Generated images/debug artifacts
+*.png
+*.jpg
+*.jpeg
+*.html
+tmp_*.html
+
+# Editor
+.vscode/
+.idea/

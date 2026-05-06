@@ -1,0 +1,64 @@
+====================================================================================================
+封号弹窗检测工具 - 完整扫描模式
+====================================================================================================
+
+开始扫描所有窗口...
+
+找到 17 个可见窗口
+
+找到 17 个可疑窗口（标题或进程包含关键词）:
+
+================================================================================
+窗口句柄: 66256
+标题: <无标题>
+类名: BaseGui
+进程: iFlyInput.exe
+位置: (2327, 1051)
+大小: 171 x 29
+
+================================================================================
+窗口句柄: 197288
+标题: StatusView
+类名: BaseGui
+进程: iFlyInput.exe
+位置: (2327, 1051)
+大小: 171 x 29
+
+================================================================================
+窗口句柄: 65722
+标题: <无标题>
+类名: Shell_TrayWnd
+进程: explorer.exe
+位置: (2498, 0)
+大小: 62 x 1080
+子窗口数量: 24
+子窗口详情:
+  [1] 类名: Start, 文本: 开始, 可见: 1
+  [2] 类名: TrayButton, 文本: 搜索, 可见: 1
+  [3] 类名: TrayDummySearchControl, 文本: , 可见: 0
+  [4] 类名: DynamicContent1, 文本: 搜索突出显示图标打开搜索主页窗口, 可见: 0
+  [5] 类名: Button, 文本: 搜索, 可见: 0
+  [6] 类名: Static, 文本: 搜索, 可见: 0
+  [7] 类名: ToolbarWindow32, 文本: , 可见: 0
+  [8] 类名: ReBarWindow32, 文本: , 可见: 1
+  [9] 类名: MSTaskSwWClass, 文本: 运行中的应用程序, 可见: 1
+  [10] 类名: MSTaskListWClass, 文本: 运行中的应用程序, 可见: 1
+  [11] 类名: DynamicContent2, 文本: 资讯和兴趣, 可见: 0
+  [12] 类名: TrayNotifyWnd, 文本: , 可见: 1
+  [13] 类名: Button, 文本: , 可见: 1
+  [14] 类名: Button, 文本: , 可见: 0
+  [15] 类名: ToolbarWindow32, 文本: 系统升级的通知区域, 可见: 1
+  [16] 类名: SysPager, 文本: , 可见: 1
+  [17] 类名: ToolbarWindow32, 文本: 用户提示通知区域, 可见: 1
+  [18] 类名: TIPBand, 文本: 触摸键盘, 可见: 1
+  [19] 类名: TrayInputIndicatorWClass, 文本: 任务栏输入指示, 可见: 1
+  [20] 类名: IMEModeButton, 文本: , 可见: 1
+  [21] 类名: InputIndicatorButton, 文本: , 可见: 1
+Traceback (most recent call last):
+  File "C:\Users\Administrator\lol\lol-assistant\debug_window_detector.py", line 173, in <module>
+    main()
+  File "C:\Users\Administrator\lol\lol-assistant\debug_window_detector.py", line 154, in main
+    print_window_info(win)
+  File "C:\Users\Administrator\lol\lol-assistant\debug_window_detector.py", line 129, in print_window_info
+    print(f"{prefix}  [{i}] 类名: {child['class']}, 文本: {child['text']}, 可见: {child['visible']}")
+UnicodeEncodeError: 'gbk' codec can't encode character '\u200e' in position 45: illegal multibyte sequence

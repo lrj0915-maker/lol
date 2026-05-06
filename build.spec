@@ -1,81 +1,18 @@
 # -*- mode: python ; coding: utf-8 -*-
-import os
+"""
+兼容入口：保留 build.spec，实际委托到 build_config/lol-assistant.spec。
+推荐命令：pyinstaller build_config/lol-assistant.spec
+"""
 
-block_cipher = None
+from pathlib import Path
 
-# 收集 backend 目录下所有 Python 文件
-backend_dir = os.path.join(os.getcwd(), 'backend')
-backend_files = []
-for root, dirs, files in os.walk(backend_dir):
-    # 跳过 __pycache__
-    dirs[:] = [d for d in dirs if d != '__pycache__']
-    for f in files:
-        if f.endswith('.py'):
-            src = os.path.join(root, f)
-            # 计算相对路径
-            rel_path = os.path.relpath(root, os.getcwd())
-            backend_files.append((src, rel_path))
+delegate_spec = Path(SPECPATH) / 'build_config' / 'lol-assistant.spec'
+if not delegate_spec.exists():
+    raise SystemExit('未找到 build_config/lol-assistant.spec，请检查仓库文件是否完整。')
 
-a = Analysis(
-    ['backend/main.py'],
-    pathex=['backend'],
-    binaries=[],
-    datas=[
-        ('frontend/dist', 'frontend/dist'),
-        ('backend', 'backend'),
-    ],
-    hiddenimports=[
-        'bridge',
-        'config',
-        'lcu',
-        'lcu.api',
-        'lcu.connection',
-        'lcu.events',
-        'services',
-        'services.auto_accept',
-        'services.auto_select',
-        'services.match_history',
-        'services.team_analyzer',
-        'services.chat_sender',
-        'services.ingame_chat',
-        'storage',
-        'storage.database',
-        'storage.models',
-        'webview',
-        'clr_loader',
-        'pythonnet',
-        'pyautogui',
-    ],
-    hookspath=[],
-    hooksconfig={},
-    runtime_hooks=[],
-    excludes=[],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
-    noarchive=False,
-)
+print('[build.spec] 已切换到 build_config/lol-assistant.spec')
 
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
-
-exe = EXE(
-    pyz,
-    a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    [],
-    name='LOL战绩助手',
-    debug=False,
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
-    console=False,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
-)
+# 委托执行时，使用目标 spec 的目录作为 SPECPATH，避免相对路径解析错误。
+SPECPATH = str(delegate_spec.parent)
+__file__ = str(delegate_spec)
+exec(compile(delegate_spec.read_text(encoding='utf-8'), str(delegate_spec), 'exec'), globals(), globals())

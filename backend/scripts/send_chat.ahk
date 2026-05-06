@@ -14,21 +14,25 @@ message := A_Args[1]
 ; 激活LOL窗口
 if WinExist("League of Legends (TM) Client") {
     WinActivate
-    Sleep 500
+    Sleep 300
+    ; 确保窗口在前台
+    WinWaitActive "League of Legends (TM) Client",, 2
 } else if WinExist("League of Legends") {
     WinActivate
-    Sleep 500
+    Sleep 300
+    WinWaitActive "League of Legends",, 2
 }
 
 ; 按Enter打开聊天框
 Send "{Enter}"
-Sleep 400
+Sleep 300
 
 ; 输入消息
 SendText message
-Sleep 200
+Sleep 150
 
 ; 按Enter发送
 Send "{Enter}"
+Sleep 100
 
 ExitApp

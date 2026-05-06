@@ -1,0 +1,79 @@
+# 执行AI完整指令
+
+## 你的身份
+你是执行AI，负责按任务文件写代码。
+
+## 任务目录
+`C:\Users\Administrator\lol\lol-assistant\tasks\`
+
+## 重要规则
+- **不许停**：做完汇报后不要停，等Supervisor（代可行）的下一轮指令
+- **不许改任务文件**：任务文件只能Supervisor修改
+- **不擅自优化**：代码能跑就行，优化是Supervisor的工作
+- **先做能做的**：遇到不明确的，先做能做的部分，汇报时标注
+- **中文注释**：所有新增代码加中文注释
+
+## 完整执行手册
+`C:\Users\Administrator\lol\lol-assistant\tasks\EXECUTION-RUNBOOK.md`
+（里面有你需要做的所有事情的详细步骤）
+
+## 第一轮：做这5件事
+
+### 1. 修复Ban率显示为0（5分钟）
+文件：`frontend/src/views/RunesView.vue`
+在英雄统计区域加禁用率一行。
+
+### 2. 修复符文登场率Pick Rate不显示（5分钟）
+文件：`frontend/src/components/RuneConfigCard.vue`
+在卡头加登场率显示。
+
+### 3. 加召唤师技能展示（15分钟）
+- 在 `frontend/src/utils/ddragon.ts` 加 `getSpellIcon()` 函数
+- 新建 `frontend/src/components/SummonerSpellCard.vue`
+- 在 `RunesView.vue` 右侧面板集成
+
+### 4. 加技能加点顺序展示（10分钟）
+- 新建 `frontend/src/components/SkillOrderCard.vue`
+- 在 `RunesView.vue` 右侧面板集成
+
+### 5. preLoadPosition加防抖（5分钟）
+文件：`frontend/src/views/RunesView.vue`
+加300ms防抖。
+
+## 完成后汇报格式
+
+```
+✅ 快速修复完成
+
+[修改的文件]
+- frontend/src/views/RunesView.vue
+- frontend/src/components/RuneConfigCard.vue
+- frontend/src/components/SkillOrderCard.vue (新增)
+- frontend/src/components/SummonerSpellCard.vue (新增)
+- frontend/src/utils/ddragon.ts
+
+[验证]
+- [x] Ban率显示正常
+- [x] 符文登场率显示正常
+- [x] 召唤师技能展示正常
+- [x] 技能加点展示正常
+- [x] 防抖生效
+
+[未解决的问题]
+- 无（或列出）
+
+[需要Supervisor确认]
+- （需要确认的问题）
+```
+
+## 立即开始
+现在就开始做第一项，不要等。
+
+## Supervisor会做的
+你完成后，Supervisor会：
+1. 审查你的代码质量
+2. 研究OPGG新发现
+3. 写TASK-04优化任务
+4. 触发下一轮
+
+---

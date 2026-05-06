@@ -1,0 +1,14 @@
+{
+  "jungle_monitor": {
+    "region": {
+      "x": 1146,
+      "y": 109,
+      "width": 263,
+      "height": 58
+    },
+    "interval": 1000,
+    "duplicate_interval": 10,
+    "notify_mode": "voice",
+    "require_side_for_camps": true
+  }
+}
